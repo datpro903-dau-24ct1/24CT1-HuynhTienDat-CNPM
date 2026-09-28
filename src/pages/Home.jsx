@@ -81,6 +81,16 @@ function Home() {
     const [loadingFriends, setLoadingFriends] = useState(true);
 
     // =========================
+    // STATE CHAT
+    // =========================
+
+    const [selectedFriend, setSelectedFriend] = useState(null);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatInput, setChatInput] = useState("");
+    const [loadingChat, setLoadingChat] = useState(false);
+    const [sendingMessage, setSendingMessage] = useState(false);
+
+    // =========================
     // STATE THÔNG BÁO
     // =========================
 
@@ -233,6 +243,153 @@ function Home() {
                 "Lỗi lấy thông báo:",
                 error
             );
+        }
+    };
+
+    // =====================================================
+    // MỞ CHAT
+    // =====================================================
+
+    const handleOpenChat = async (friend) => {
+        if (!user?.id || !friend?.id) {
+            return;
+        }
+
+        setSelectedFriend(friend);
+        setChatInput("");
+        setChatMessages([]);
+        setLoadingChat(true);
+
+        try {
+            const response = await fetch(
+                `http://localhost/it-connect-php/messages/chat.php?user_id=${user.id}&friend_id=${friend.id}`
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.log(
+                    data.message ||
+                    "Không thể lấy tin nhắn!"
+                );
+
+                setChatMessages([]);
+                return;
+            }
+
+            setChatMessages(
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
+
+        } catch (error) {
+            console.log(
+                "Lỗi lấy tin nhắn:",
+                error
+            );
+
+            setChatMessages([]);
+
+        } finally {
+            setLoadingChat(false);
+        }
+    };
+
+    // =====================================================
+    // GỬI TIN NHẮN
+    // =====================================================
+
+    const handleSendMessage = async () => {
+        if (
+            !user?.id ||
+            !selectedFriend?.id ||
+            !chatInput.trim() ||
+            sendingMessage
+        ) {
+            return;
+        }
+
+        const messageContent =
+            chatInput.trim();
+
+        setSendingMessage(true);
+
+        try {
+            const response = await fetch(
+                "http://localhost/it-connect-php/messages/send.php",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        sender_id: user.id,
+                        receiver_id:
+                            selectedFriend.id,
+                        content:
+                            messageContent
+                    })
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                console.log(
+                    data.message ||
+                    "Không thể gửi tin nhắn!"
+                );
+
+                return;
+            }
+
+            setChatInput("");
+
+            // Lấy lại danh sách tin nhắn
+            const chatResponse =
+                await fetch(
+                    `http://localhost/it-connect-php/messages/chat.php?user_id=${user.id}&friend_id=${selectedFriend.id}`
+                );
+
+            const chatData =
+                await chatResponse.json();
+
+            if (chatResponse.ok) {
+                setChatMessages(
+                    Array.isArray(chatData)
+                        ? chatData
+                        : []
+                );
+            }
+
+        } catch (error) {
+            console.log(
+                "Lỗi gửi tin nhắn:",
+                error
+            );
+
+        } finally {
+            setSendingMessage(false);
+        }
+    };
+
+    // =====================================================
+    // ENTER ĐỂ GỬI
+    // =====================================================
+
+    const handleChatKeyDown = (event) => {
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+            event.preventDefault();
+
+            handleSendMessage();
         }
     };
 
@@ -787,7 +944,6 @@ function Home() {
                 "Đang đăng bài..."
             );
 
-
             // ============================================
             // FORMDATA
             // ============================================
@@ -813,7 +969,6 @@ function Home() {
                 );
             }
 
-
             const response =
                 await fetch(
                     "http://localhost/it-connect-php/posts/posts.php",
@@ -823,10 +978,8 @@ function Home() {
                     }
                 );
 
-
             const data =
                 await response.json();
-
 
             if (!response.ok) {
 
@@ -838,11 +991,9 @@ function Home() {
                 return;
             }
 
-
             setMessage(
                 "Đăng bài thành công!"
             );
-
 
             // ============================================
             // RESET
@@ -1491,7 +1642,6 @@ function Home() {
 
             </header>
 
-
             {/* =========================
                 MAIN
             ========================= */}
@@ -1561,7 +1711,6 @@ function Home() {
 
                 </aside>
 
-
                 {/* =========================
                     NỘI DUNG
                 ========================= */}
@@ -1619,7 +1768,6 @@ function Home() {
                             />
 
                         </div>
-
 
                         {/* =========================
                             PREVIEW FILE
@@ -1709,7 +1857,6 @@ function Home() {
                             </div>
                         )}
 
-
                         {/* =========================
                             INPUT ẨN
                         ========================= */}
@@ -1759,7 +1906,6 @@ function Home() {
                             }
                         />
 
-
                         {/* =========================
                             ACTIONS
                         ========================= */}
@@ -1805,7 +1951,6 @@ function Home() {
 
                         </div>
 
-
                         {
                             message && (
 
@@ -1817,7 +1962,6 @@ function Home() {
                         }
 
                     </section>
-
 
                     {/* =========================
                         DANH SÁCH BÀI
@@ -1907,7 +2051,6 @@ function Home() {
 
                                         </div>
 
-
                                         {/* NỘI DUNG */}
 
                                         {
@@ -1925,7 +2068,6 @@ function Home() {
 
                                             )
                                         }
-
 
                                         {/* =========================
                                             MEDIA BÀI VIẾT
@@ -1953,7 +2095,6 @@ function Home() {
                                             )
                                         }
 
-
                                         {
                                             post.media_type ===
                                             "video" &&
@@ -1975,7 +2116,6 @@ function Home() {
 
                                             )
                                         }
-
 
                                         {
                                             post.media_type ===
@@ -2024,7 +2164,6 @@ function Home() {
                                             )
                                         }
 
-
                                         {/* THỐNG KÊ */}
 
                                         <div className="post-stats">
@@ -2052,7 +2191,6 @@ function Home() {
                                             </span>
 
                                         </div>
-
 
                                         {/* NÚT */}
 
@@ -2098,7 +2236,6 @@ function Home() {
                                             </button>
 
                                         </div>
-
 
                                         {/* COMMENT */}
 
@@ -2178,7 +2315,6 @@ function Home() {
                                                         </button>
 
                                                     </div>
-
 
                                                     {
                                                         loadingComments[
@@ -2304,7 +2440,6 @@ function Home() {
 
                 </main>
 
-
                 {/* =========================
                     SIDEBAR PHẢI
                 ========================= */}
@@ -2386,7 +2521,12 @@ function Home() {
 
                                             <div className="friend-info">
 
-                                                <strong>
+                                                <strong
+                                                    className="friend-name"
+                                                    onClick={() =>
+                                                        handleOpenChat(friend)
+                                                    }
+                                                >
                                                     {
                                                         friend.name
                                                     }
@@ -2418,6 +2558,169 @@ function Home() {
                     </div>
 
                 </aside>
+
+                {/* =========================
+                    CHAT POPUP
+                ========================= */}
+
+                {
+                    selectedFriend && (
+
+                        <div className="chat-popup">
+
+                            {/* HEADER CHAT */}
+
+                            <div className="chat-popup-header">
+
+                                <div className="chat-user">
+
+                                    <div className="avatar small">
+
+                                        {selectedFriend.avatar ? (
+
+                                            <img
+                                                src={
+                                                    getAvatarUrl(
+                                                        selectedFriend.avatar
+                                                    )
+                                                }
+                                                alt={
+                                                    selectedFriend.name
+                                                }
+                                                className="avatar-image"
+                                            />
+
+                                        ) : (
+
+                                            selectedFriend.name
+                                                ? selectedFriend.name
+                                                    .charAt(0)
+                                                    .toUpperCase()
+                                                : "?"
+                                        )}
+
+                                    </div>
+
+                                    <strong>
+                                        {
+                                            selectedFriend.name
+                                        }
+                                    </strong>
+
+                                </div>
+
+                                <button
+                                    className="chat-close"
+                                    onClick={() => {
+                                        setSelectedFriend(null);
+                                        setChatMessages([]);
+                                        setChatInput("");
+                                    }}
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+                            {/* NỘI DUNG CHAT */}
+
+                            <div className="chat-popup-body">
+
+                                {
+                                    loadingChat ? (
+
+                                        <div className="chat-loading">
+                                            Đang tải tin nhắn...
+                                        </div>
+
+                                    ) : chatMessages.length === 0 ? (
+
+                                        <div className="chat-empty">
+                                            Chưa có tin nhắn
+                                        </div>
+
+                                    ) : (
+
+                                        chatMessages.map(
+                                            (msg) => {
+
+                                                const isMine =
+                                                    Number(
+                                                        msg.sender_id
+                                                    ) ===
+                                                    Number(
+                                                        user.id
+                                                    );
+
+                                                return (
+
+                                                    <div
+                                                        key={
+                                                            msg.id
+                                                        }
+                                                        className={
+                                                            `chat-message-row ${
+                                                                isMine
+                                                                    ? "mine"
+                                                                    : "other"
+                                                            }`
+                                                        }
+                                                    >
+
+                                                        <div className="chat-message">
+                                                            {
+                                                                msg.content
+                                                            }
+                                                        </div>
+
+                                                    </div>
+
+                                                );
+                                            }
+                                        )
+
+                                    )
+                                }
+
+                            </div>
+
+                            {/* Ô NHẬP CHAT */}
+
+                            <div className="chat-popup-input">
+
+                                <textarea
+                                    value={
+                                        chatInput
+                                    }
+                                    onChange={(event) =>
+                                        setChatInput(
+                                            event.target.value
+                                        )
+                                    }
+                                    onKeyDown={
+                                        handleChatKeyDown
+                                    }
+                                    placeholder="Nhập tin nhắn..."
+                                    rows="1"
+                                />
+
+                                <button
+                                    onClick={
+                                        handleSendMessage
+                                    }
+                                    disabled={
+                                        !chatInput.trim() ||
+                                        sendingMessage
+                                    }
+                                >
+                                    ➤
+                                </button>
+
+                            </div>
+
+                        </div>
+                    )
+                }
 
             </div>
 

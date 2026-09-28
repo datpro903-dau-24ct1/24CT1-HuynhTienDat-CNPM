@@ -1,5 +1,7 @@
 <?php
 
+header("Content-Type: application/json; charset=UTF-8");
+
 $host = "localhost";
 $user = "root";
 $password = "123456";

@@ -711,7 +711,7 @@ function Account() {
             <header className="account-header">
 
                 <Link
-                    to="/"
+                    to="/home"
                     className="account-logo"
                 >
                     🎓 IT CONNECT
@@ -719,7 +719,7 @@ function Account() {
 
 
                 <Link
-                    to="/"
+                    to="/home"
                     className="back-home"
                 >
                     ← Trang chủ
