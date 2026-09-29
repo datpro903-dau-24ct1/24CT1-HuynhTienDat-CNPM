@@ -44,7 +44,7 @@ function Register() {
 
         try {
             const response = await fetch(
-                "http://localhost/it-connect-php/auth/register.php",
+                "https://itconect.free.je/api/auth/register.php",
                 {
                     method: "POST",
                     headers: {

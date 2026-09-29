@@ -653,3 +653,58 @@
         max-width: 80%;
     }
 }
+/* =========================
+   AVATAR TIN NHẮN
+========================= */
+
+.message-avatar {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.message-avatar .avatar-fallback {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #4f7df3;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Avatar nhỏ bên cạnh tin nhắn */
+
+.message-avatar.mini {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+}
+
+.message-avatar.mini .avatar-fallback {
+    font-size: 14px;
+}
+
+/* Avatar trong danh sách bạn bè */
+
+.conversation-item .message-avatar {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+}
+
+/* Avatar trên header chat */
+
+.chat-header .message-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+}

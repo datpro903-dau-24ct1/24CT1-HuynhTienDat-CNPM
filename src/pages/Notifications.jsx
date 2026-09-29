@@ -51,7 +51,7 @@ function Notifications() {
             }
 
             const url =
-                `http://localhost/it-connect-php/notifications/notifications.php?user_id=${user.id}`;
+                `https://itconect.free.je/api/notifications/notifications.php?user_id=${user.id}`;
 
             console.log("🔔 Gọi API thông báo:", url);
 
@@ -249,7 +249,7 @@ function Notifications() {
             );
 
             fetch(
-                `http://localhost/it-connect-php/notifications/read.php?id=${notification.id}`,
+                `https://itconect.free.je/api/notifications/read.php?id=${notification.id}`,
                 {
                     method: "PUT"
                 }
@@ -365,7 +365,7 @@ function Notifications() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/notifications/delete.php?id=${notificationId}&user_id=${user.id}`,
+                `https://itconect.free.je/api/notifications/delete.php?id=${notificationId}&user_id=${user.id}`,
                 {
                     method: "DELETE"
                 }
@@ -441,7 +441,7 @@ function Notifications() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/notifications/read-all.php?user_id=${user.id}`,
+                `https://itconect.free.je/api/notifications/read-all.php?user_id=${user.id}`,
                 {
                     method: "PUT"
                 }

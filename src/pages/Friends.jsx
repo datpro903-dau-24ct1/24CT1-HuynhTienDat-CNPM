@@ -66,7 +66,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/users.php?user_id=${user.id}`
+                `https://itconect.free.je/api/friends/users.php?user_id=${user.id}`
             );
 
             const data = await response.json();
@@ -109,7 +109,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/requests.php?user_id=${user.id}`
+                `https://itconect.free.je/api/friends/requests.php?user_id=${user.id}`
             );
 
             const data = await response.json();
@@ -152,7 +152,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/list.php?user_id=${user.id}`
+                `https://itconect.free.je/api/friends/list.php?user_id=${user.id}`
             );
 
             const data = await response.json();
@@ -283,7 +283,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                "http://localhost/it-connect-php/friends/action.php?action=request",
+                "https://itconect.free.je/api/friends/action.php?action=request",
                 {
                     method: "POST",
 
@@ -348,7 +348,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/action.php?action=accept&id=${friendshipId}`,
+                `https://itconect.free.je/api/friends/action.php?action=accept&id=${friendshipId}`,
                 {
                     method: "PUT"
                 }
@@ -401,7 +401,7 @@ function Friends() {
         try {
 
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/action.php?action=reject&id=${friendshipId}`,
+                `https://itconect.free.je/api/friends/action.php?action=reject&id=${friendshipId}`,
                 {
                     method: "PUT"
                 }

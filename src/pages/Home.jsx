@@ -29,7 +29,7 @@ function Home() {
             return avatar;
         }
 
-        return `http://localhost/it-connect-php/${avatar}`;
+        return `https://itconect.free.je/api/${avatar}`;
     };
 
     // =========================
@@ -48,7 +48,7 @@ function Home() {
             return path;
         }
 
-        return `http://localhost/it-connect-php/${path}`;
+        return `https://itconect.free.je/api/${path}`;
     };
 
     // =========================
@@ -89,6 +89,7 @@ function Home() {
     const [chatInput, setChatInput] = useState("");
     const [loadingChat, setLoadingChat] = useState(false);
     const [sendingMessage, setSendingMessage] = useState(false);
+    const chatBodyRef = useRef(null);
 
     // =========================
     // STATE CHIA SẺ BÀI VIẾT
@@ -115,6 +116,12 @@ function Home() {
         useState(null);
 
     const notificationRef = useRef(null);
+    const processedMessageNotifications = useRef(
+        new Set()
+    );
+    
+    const initializedMessageNotifications =
+        useRef(false);
 
     // =========================
     // STATE BÌNH LUẬN
@@ -132,8 +139,8 @@ function Home() {
     const fetchPosts = async () => {
         try {
             const url = user?.id
-                ? `http://localhost/it-connect-php/posts/posts.php?user_id=${user.id}`
-                : "http://localhost/it-connect-php/posts/posts.php";
+                ? `https://itconect.free.je/api/posts/posts.php?user_id=${user.id}`
+                : "https://itconect.free.je/api/posts/posts.php";
 
             const response = await fetch(url);
             const data = await response.json();
@@ -170,7 +177,7 @@ function Home() {
 
         try {
             const response = await fetch(
-                `http://localhost/it-connect-php/friends/list.php?user_id=${user.id}`
+                `https://itconect.free.je/api/friends/list.php?user_id=${user.id}`
             );
 
             const data = await response.json();
@@ -207,48 +214,209 @@ function Home() {
     // =====================================================
 
     const fetchNotifications = async () => {
+
         if (!user?.id) {
             return;
         }
-
+    
         try {
+    
             const response = await fetch(
-                `http://localhost/it-connect-php/notifications/notifications.php?user_id=${user.id}`
+                `https://itconect.free.je/api/notifications/notifications.php?user_id=${user.id}&_=${Date.now()}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        "Pragma": "no-cache"
+                    }
+                }
             );
-
+    
             const data = await response.json();
-
+    
             if (!response.ok) {
+    
                 console.log(
                     "Lỗi lấy thông báo:",
                     data.message
                 );
+    
                 return;
             }
-
+    
             if (!Array.isArray(data)) {
                 return;
             }
-
+    
+    
+            // =========================================
+            // KIỂM TRA TIN NHẮN MỚI
+            // =========================================
+    
+            const messageNotifications =
+                data.filter(
+                    (notification) =>
+                        notification.type === "message" &&
+                        Number(notification.is_read) === 0
+                );
+    
+    
+            // =========================================
+            // LẦN ĐẦU CHỈ GHI NHỚ
+            // KHÔNG TỰ MỞ POPUP
+            // =========================================
+    
+            if (
+                !initializedMessageNotifications.current
+            ) {
+    
+                messageNotifications.forEach(
+                    (notification) => {
+    
+                        processedMessageNotifications.current.add(
+                            String(notification.id)
+                        );
+    
+                    }
+                );
+    
+                initializedMessageNotifications.current =
+                    true;
+    
+            } else {
+    
+                // =========================================
+                // TÌM TIN NHẮN MỚI
+                // =========================================
+    
+                const newMessageNotification =
+                    messageNotifications.find(
+                        (notification) =>
+                            !processedMessageNotifications.current.has(
+                                String(notification.id)
+                            )
+                    );
+    
+    
+                if (newMessageNotification) {
+    
+                    processedMessageNotifications.current.add(
+                        String(newMessageNotification.id)
+                    );
+    
+    
+                    // =====================================
+                    // LẤY DANH SÁCH BẠN MỚI NHẤT
+                    // =====================================
+    
+                    try {
+    
+                        const friendsResponse =
+                            await fetch(
+                                `https://itconect.free.je/api/friends/list.php?user_id=${user.id}&_=${Date.now()}`,
+                                {
+                                    method: "GET",
+                                    cache: "no-store",
+                                    headers: {
+                                        "Cache-Control":
+                                            "no-cache",
+                                        "Pragma":
+                                            "no-cache"
+                                    }
+                                }
+                            );
+    
+                        const friendsData =
+                            await friendsResponse.json();
+    
+    
+                            if (
+                                friendsResponse.ok &&
+                                Array.isArray(friendsData)
+                            ) {
+                            
+                                const sender =
+                                    friendsData.find(
+                                        (friend) =>
+                                            String(friend.id) ===
+                                            String(
+                                                newMessageNotification.from_user_id
+                                            )
+                                    );
+                            
+                                if (sender) {
+                            
+                                    await handleOpenChat(sender);
+                            
+                                    try {
+                            
+                                        await fetch(
+                                            `https://itconect.free.je/api/notifications/read.php?id=${newMessageNotification.id}`,
+                                            {
+                                                method: "GET",
+                                                cache: "no-store"
+                                            }
+                                        );
+                            
+                                    } catch (error) {
+                            
+                                        console.log(
+                                            "Lỗi đánh dấu thông báo:",
+                                            error
+                                        );
+                            
+                                    }
+                            
+                                }
+                            }
+    
+                    } catch (error) {
+    
+                        console.log(
+                            "Lỗi lấy người gửi tin nhắn:",
+                            error
+                        );
+    
+                    }
+    
+                }
+    
+            }
+    
+    
+            // =========================================
+            // CẬP NHẬT NOTIFICATIONS
+            // =========================================
+    
             setNotifications(data);
-
-            const count = data.filter(
-                (notification) =>
-                    Number(notification.is_read) === 0
-            ).length;
-
+    
+    
+            const count =
+                data.filter(
+                    (notification) =>
+                        Number(notification.is_read) === 0
+                ).length;
+    
+    
             if (
                 !showNotifications &&
                 !hideNotificationBadge
             ) {
+    
                 setUnreadCount(count);
+    
             }
+    
         } catch (error) {
+    
             console.log(
                 "Lỗi lấy thông báo:",
                 error
             );
+    
         }
+    
     };
 
     // =====================================================
@@ -267,7 +435,15 @@ function Home() {
 
         try {
             const response = await fetch(
-                `http://localhost/it-connect-php/messages/chat.php?user_id=${user.id}&friend_id=${friend.id}`
+                `https://itconect.free.je/api/messages/get-messages.php?user_id=${user.id}&friend_id=${friend.id}&_=${Date.now()}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        "Pragma": "no-cache"
+                    }
+                }
             );
 
             const data = await response.json();
@@ -287,6 +463,7 @@ function Home() {
                     ? data
                     : []
             );
+
         } catch (error) {
             console.log(
                 "Lỗi lấy tin nhắn:",
@@ -294,10 +471,82 @@ function Home() {
             );
 
             setChatMessages([]);
+
         } finally {
             setLoadingChat(false);
         }
     };
+    useEffect(() => {
+        if (!selectedFriend || !user?.id) {
+            return;
+        }
+    
+        const reloadChatPopup = async () => {
+            try {
+                const response = await fetch(
+                    `https://itconect.free.je/api/messages/get-messages.php?user_id=${user.id}&friend_id=${selectedFriend.id}&_=${Date.now()}`,
+                    {
+                        method: "GET",
+                        cache: "no-store",
+                        headers: {
+                            "Cache-Control": "no-cache",
+                            "Pragma": "no-cache"
+                        }
+                    }
+                );
+    
+                const data = await response.json();
+    
+                if (response.ok && Array.isArray(data)) {
+                    setChatMessages((currentMessages) => {
+                
+                        const oldLastId =
+                            currentMessages.length > 0
+                                ? currentMessages[currentMessages.length - 1].id
+                                : null;
+                
+                        const newLastId =
+                            data.length > 0
+                                ? data[data.length - 1].id
+                                : null;
+                
+                        const oldLength = currentMessages.length;
+                        const newLength = data.length;
+                
+                        // Không có gì thay đổi → không render lại
+                        if (
+                            oldLastId === newLastId &&
+                            oldLength === newLength
+                        ) {
+                            return currentMessages;
+                        }
+                
+                        // Có tin nhắn mới → cập nhật
+                        return data;
+                    });
+                }
+    
+            } catch (error) {
+                console.log(
+                    "Lỗi reload popup chat:",
+                    error
+                );
+            }
+        };
+    
+        // Reload popup ngay lập tức
+        reloadChatPopup();
+    
+        // Tự reload nội dung popup mỗi 1 giây
+        const interval = setInterval(() => {
+            reloadChatPopup();
+        }, 1000);
+    
+        return () => {
+            clearInterval(interval);
+        };
+    
+    }, [selectedFriend, user?.id]);
 
     // =====================================================
     // GỬI TIN NHẮN CHAT BÌNH THƯỜNG
@@ -317,15 +566,30 @@ function Home() {
 
         setSendingMessage(true);
 
+        // Hiện tin nhắn ngay lập tức
+        const temporaryMessage = {
+            id: `temp-${Date.now()}`,
+            sender_id: user.id,
+            receiver_id: selectedFriend.id,
+            content: messageContent,
+            created_at: new Date().toISOString()
+        };
+
+        setChatMessages((current) => [
+            ...current,
+            temporaryMessage
+        ]);
+
+        setChatInput("");
+
         try {
             const response = await fetch(
-                "http://localhost/it-connect-php/messages/send.php",
+                "https://itconect.free.je/api/messages/send.php",
                 {
                     method: "POST",
 
                     headers: {
-                        "Content-Type":
-                            "application/json"
+                        "Content-Type": "application/json"
                     },
 
                     body: JSON.stringify({
@@ -344,32 +608,52 @@ function Home() {
                     "Không thể gửi tin nhắn!"
                 );
 
+                // Nếu gửi lỗi thì xóa tin nhắn tạm
+                setChatMessages((current) =>
+                    current.filter(
+                        (message) =>
+                            message.id !==
+                            temporaryMessage.id
+                    )
+                );
+
                 return;
             }
 
-            setChatInput("");
+            // Lấy lại dữ liệu thật từ server
+            const chatResponse = await fetch(
+                `https://itconect.free.je/api/messages/get-messages.php?user_id=${user.id}&friend_id=${selectedFriend.id}&_=${Date.now()}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        "Pragma": "no-cache"
+                    }
+                }
+            );
 
-            // Lấy lại danh sách tin nhắn
-            const chatResponse =
-                await fetch(
-                    `http://localhost/it-connect-php/messages/chat.php?user_id=${user.id}&friend_id=${selectedFriend.id}`
-                );
+            const chatData = await chatResponse.json();
 
-            const chatData =
-                await chatResponse.json();
-
-            if (chatResponse.ok) {
-                setChatMessages(
-                    Array.isArray(chatData)
-                        ? chatData
-                        : []
-                );
+            if (chatResponse.ok && Array.isArray(chatData)) {
+                setChatMessages(chatData);
             }
+
         } catch (error) {
             console.log(
                 "Lỗi gửi tin nhắn:",
                 error
             );
+
+            // Gửi thất bại → xóa tin tạm
+            setChatMessages((current) =>
+                current.filter(
+                    (message) =>
+                        message.id !==
+                        temporaryMessage.id
+                )
+            );
+
         } finally {
             setSendingMessage(false);
         }
@@ -389,6 +673,33 @@ function Home() {
             handleSendMessage();
         }
     };
+    // =====================================================
+    // TỰ ĐỘNG CUỘN XUỐNG TIN NHẮN MỚI NHẤT
+    // =====================================================
+
+    useEffect(() => {
+        if (!selectedFriend || loadingChat) {
+            return;
+        }
+
+        const scrollToBottom = () => {
+            if (!chatBodyRef.current) {
+                return;
+            }
+
+            chatBodyRef.current.scrollTop =
+                chatBodyRef.current.scrollHeight;
+        };
+
+        requestAnimationFrame(() => {
+            scrollToBottom();
+        });
+
+    }, [
+        chatMessages,
+        selectedFriend,
+        loadingChat
+    ]);
 
     // =====================================================
     // MỞ POPUP CHIA SẺ BÀI VIẾT
@@ -448,7 +759,7 @@ function Home() {
 
         try {
             const response = await fetch(
-                "http://localhost/it-connect-php/messages/send.php",
+                "https://itconect.free.je/api/messages/send.php",
                 {
                     method: "POST",
 
@@ -714,7 +1025,7 @@ function Home() {
             try {
                 const response =
                     await fetch(
-                        `http://localhost/it-connect-php/notifications/delete.php?id=${notificationId}&user_id=${user.id}`,
+                        `https://itconect.free.je/api/notifications/delete.php?id=${notificationId}&user_id=${user.id}`,
                         {
                             method: "DELETE"
                         }
@@ -805,7 +1116,7 @@ function Home() {
                 try {
                     const response =
                         await fetch(
-                            `http://localhost/it-connect-php/notifications/read.php?id=${notification.id}`,
+                            `https://itconect.free.je/api/notifications/read.php?id=${notification.id}`,
                             {
                                 method: "PUT"
                             }
@@ -930,7 +1241,7 @@ function Home() {
             try {
                 const response =
                     await fetch(
-                        `http://localhost/it-connect-php/notifications/read-all.php?user_id=${user.id}`,
+                        `https://itconect.free.je/api/notifications/read-all.php?user_id=${user.id}`,
                         {
                             method: "PUT"
                         }
@@ -1105,7 +1416,7 @@ function Home() {
 
             const response =
                 await fetch(
-                    "http://localhost/it-connect-php/posts/posts.php",
+                    "https://itconect.free.je/api/posts/posts.php",
                     {
                         method: "POST",
                         body: formData
@@ -1159,7 +1470,7 @@ function Home() {
         try {
             const response =
                 await fetch(
-                    `http://localhost/it-connect-php/posts/likes.php?post_id=${postId}`,
+                    `https://itconect.free.je/api/posts/likes.php?post_id=${postId}`,
                     {
                         method: "POST",
 
@@ -1247,7 +1558,7 @@ function Home() {
             try {
                 const response =
                     await fetch(
-                        `http://localhost/it-connect-php/posts/comments.php?post_id=${postId}`
+                        `https://itconect.free.je/api/posts/comments.php?post_id=${postId}`
                     );
 
                 const data =
@@ -1355,7 +1666,7 @@ function Home() {
             try {
                 const response =
                     await fetch(
-                        `http://localhost/it-connect-php/posts/comments.php?post_id=${postId}`,
+                        `https://itconect.free.je/api/posts/comments.php?post_id=${postId}`,
                         {
                             method: "POST",
 
@@ -2956,7 +3267,7 @@ function Home() {
 
                             {/* NỘI DUNG CHAT */}
 
-                            <div className="chat-popup-body">
+                            <div className="chat-popup-body"ref={chatBodyRef}>
 
                                 {
                                     loadingChat ? (

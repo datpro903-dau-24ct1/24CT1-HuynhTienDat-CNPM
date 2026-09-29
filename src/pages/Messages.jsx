@@ -8,12 +8,47 @@ import "./Messages.css";
 function Messages() {
 
     // =========================
+    // API
+    // =========================
+
+    const API_BASE = "https://itconect.free.je/api";
+
+
+    // =========================
     // USER
     // =========================
 
     const user = JSON.parse(
         localStorage.getItem("user")
     );
+
+
+    // =========================
+    // HÀM LẤY URL AVATAR
+    // =========================
+
+    const getAvatarUrl = (avatar) => {
+
+        if (!avatar) {
+            return null;
+        }
+
+        // Nếu avatar đã là URL đầy đủ
+        if (
+            avatar.startsWith("http://") ||
+            avatar.startsWith("https://")
+        ) {
+            return avatar;
+        }
+
+        // Nếu avatar bắt đầu bằng /
+        if (avatar.startsWith("/")) {
+            return `${API_BASE}${avatar}`;
+        }
+
+        // Avatar lưu dạng uploads/...
+        return `${API_BASE}/${avatar}`;
+    };
 
 
     // =========================
@@ -84,14 +119,18 @@ function Messages() {
             setLoading(true);
 
             const response = await fetch(
-                `http://localhost/it-connect-php/messages/friends.php?user_id=${user.id}`
+                `${API_BASE}/messages/friends.php?user_id=${user.id}`
             );
 
             const data = await response.json();
 
             if (response.ok) {
 
-                setConversations(data);
+                setConversations(
+                    Array.isArray(data)
+                        ? data
+                        : []
+                );
 
             } else {
 
@@ -131,83 +170,67 @@ function Messages() {
         friendId,
         showLoading = true
     ) => {
-
+    
         if (!user?.id || !friendId) {
             return;
         }
-
-        // Chỉ hiện loading khi người dùng
-        // mới mở cuộc trò chuyện
+    
         if (showLoading) {
             setLoadingMessages(true);
         }
-
+    
         try {
-
+    
             const response = await fetch(
-                `http://localhost/it-connect-php/messages/chat.php?user_id=${user.id}&friend_id=${friendId}`
-            );
-
-            const data = await response.json();
-
-            if (response.ok) {
-
-                setMessages((oldMessages) => {
-
-                    // Nếu số lượng hoặc nội dung tin nhắn
-                    // thay đổi thì cập nhật giao diện
-                    const oldLast =
-                        oldMessages[
-                            oldMessages.length - 1
-                        ];
-
-                    const newLast =
-                        data[
-                            data.length - 1
-                        ];
-
-                    const hasNewMessage =
-                        oldMessages.length !== data.length ||
-                        oldLast?.id !== newLast?.id;
-
-                    if (hasNewMessage) {
-
-                        return data;
-
+                `${API_BASE}/messages/get-messages.php?user_id=${user.id}&friend_id=${friendId}&_=${Date.now()}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        "Pragma": "no-cache"
                     }
-
-                    return oldMessages;
-
-                });
-
+                }
+            );
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+    
+                const newMessages =
+                    Array.isArray(data)
+                        ? data
+                        : [];
+    
+                setMessages(newMessages);
+    
             } else {
-
+    
                 if (showLoading) {
                     setMessages([]);
                 }
-
+    
                 console.log(
                     "Không lấy được tin nhắn:",
                     data
                 );
-
+    
             }
-
+    
         } catch (error) {
-
+    
             console.log(
                 "Lỗi lấy tin nhắn:",
                 error
             );
-
+    
         } finally {
-
+    
             if (showLoading) {
                 setLoadingMessages(false);
             }
-
+    
         }
-
     };
 
 
@@ -327,7 +350,7 @@ function Messages() {
         try {
 
             const response = await fetch(
-                "http://localhost/it-connect-php/messages/send.php",
+                `${API_BASE}/messages/send.php`,
                 {
                     method: "POST",
 
@@ -592,18 +615,64 @@ function Messages() {
                                             }
                                         >
 
+                                            {/* AVATAR */}
+
                                             <div className="message-avatar">
 
                                                 {conversation.avatar ? (
 
-                                                    <img
-                                                        src={
-                                                            conversation.avatar
-                                                        }
-                                                        alt={
-                                                            conversation.name
-                                                        }
-                                                    />
+                                                    <>
+                                                        <img
+                                                            src={
+                                                                getAvatarUrl(
+                                                                    conversation.avatar
+                                                                )
+                                                            }
+                                                            alt={
+                                                                conversation.name
+                                                            }
+                                                            onError={(
+                                                                event
+                                                            ) => {
+
+                                                                event.currentTarget.style.display =
+                                                                    "none";
+
+                                                                const fallback =
+                                                                    event
+                                                                        .currentTarget
+                                                                        .parentElement
+                                                                        ?.querySelector(
+                                                                            ".avatar-fallback"
+                                                                        );
+
+                                                                if (
+                                                                    fallback
+                                                                ) {
+                                                                    fallback.style.display =
+                                                                        "flex";
+                                                                }
+
+                                                            }}
+                                                        />
+
+                                                        <span
+                                                            className="avatar-fallback"
+                                                            style={{
+                                                                display: "none",
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                alignItems: "center",
+                                                                justifyContent: "center"
+                                                            }}
+                                                        >
+                                                            {conversation.name
+                                                                ?.charAt(
+                                                                    0
+                                                                )
+                                                                .toUpperCase()}
+                                                        </span>
+                                                    </>
 
                                                 ) : (
 
@@ -676,7 +745,9 @@ function Messages() {
                             <>
 
 
-                                {/* CHAT HEADER */}
+                                {/* =========================
+                                    CHAT HEADER
+                                ========================= */}
 
                                 <div className="chat-header">
 
@@ -684,14 +755,58 @@ function Messages() {
 
                                         {selectedUser.avatar ? (
 
-                                            <img
-                                                src={
-                                                    selectedUser.avatar
-                                                }
-                                                alt={
-                                                    selectedUser.name
-                                                }
-                                            />
+                                            <>
+                                                <img
+                                                    src={
+                                                        getAvatarUrl(
+                                                            selectedUser.avatar
+                                                        )
+                                                    }
+                                                    alt={
+                                                        selectedUser.name
+                                                    }
+                                                    onError={(
+                                                        event
+                                                    ) => {
+
+                                                        event.currentTarget.style.display =
+                                                            "none";
+
+                                                        const fallback =
+                                                            event
+                                                                .currentTarget
+                                                                .parentElement
+                                                                ?.querySelector(
+                                                                    ".avatar-fallback"
+                                                                );
+
+                                                        if (
+                                                            fallback
+                                                        ) {
+                                                            fallback.style.display =
+                                                                "flex";
+                                                        }
+
+                                                    }}
+                                                />
+
+                                                <span
+                                                    className="avatar-fallback"
+                                                    style={{
+                                                        display: "none",
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        alignItems: "center",
+                                                        justifyContent: "center"
+                                                    }}
+                                                >
+                                                    {selectedUser.name
+                                                        ?.charAt(
+                                                            0
+                                                        )
+                                                        .toUpperCase()}
+                                                </span>
+                                            </>
 
                                         ) : (
 
@@ -723,7 +838,9 @@ function Messages() {
 
 
 
-                                {/* DANH SÁCH TIN NHẮN */}
+                                {/* =========================
+                                    DANH SÁCH TIN NHẮN
+                                ========================= */}
 
                                 <div className="chat-messages">
 
@@ -786,11 +903,70 @@ function Messages() {
 
                                                             <div className="message-avatar mini">
 
-                                                                {
-                                                                    message.sender_name
-                                                                        ?.charAt(0)
+                                                                {selectedUser.avatar ? (
+
+                                                                    <>
+                                                                        <img
+                                                                            src={
+                                                                                getAvatarUrl(
+                                                                                    selectedUser.avatar
+                                                                                )
+                                                                            }
+                                                                            alt={
+                                                                                selectedUser.name
+                                                                            }
+                                                                            onError={(
+                                                                                event
+                                                                            ) => {
+
+                                                                                event.currentTarget.style.display =
+                                                                                    "none";
+
+                                                                                const fallback =
+                                                                                    event
+                                                                                        .currentTarget
+                                                                                        .parentElement
+                                                                                        ?.querySelector(
+                                                                                            ".avatar-fallback"
+                                                                                        );
+
+                                                                                if (
+                                                                                    fallback
+                                                                                ) {
+                                                                                    fallback.style.display =
+                                                                                        "flex";
+                                                                                }
+
+                                                                            }}
+                                                                        />
+
+                                                                        <span
+                                                                            className="avatar-fallback"
+                                                                            style={{
+                                                                                display: "none",
+                                                                                width: "100%",
+                                                                                height: "100%",
+                                                                                alignItems: "center",
+                                                                                justifyContent: "center"
+                                                                            }}
+                                                                        >
+                                                                            {selectedUser.name
+                                                                                ?.charAt(
+                                                                                    0
+                                                                                )
+                                                                                .toUpperCase()}
+                                                                        </span>
+                                                                    </>
+
+                                                                ) : (
+
+                                                                    selectedUser.name
+                                                                        ?.charAt(
+                                                                            0
+                                                                        )
                                                                         .toUpperCase()
-                                                                }
+
+                                                                )}
 
                                                             </div>
 
@@ -834,6 +1010,7 @@ function Messages() {
 
                                     )}
 
+
                                     {/* ĐIỂM CUỐI TIN NHẮN */}
 
                                     <div
@@ -844,7 +1021,9 @@ function Messages() {
 
 
 
-                                {/* INPUT */}
+                                {/* =========================
+                                    INPUT
+                                ========================= */}
 
                                 <div className="chat-input-area">
 

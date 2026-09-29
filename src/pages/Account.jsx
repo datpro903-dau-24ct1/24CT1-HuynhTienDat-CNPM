@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import "./Account.css";
 
 
-const API = "http://localhost/it-connect-php";
+const API = "https://itconect.free.je/api";
 
 
 function Account() {

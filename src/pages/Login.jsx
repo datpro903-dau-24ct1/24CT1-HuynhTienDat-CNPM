@@ -19,7 +19,7 @@ function Login() {
 
         try {
             const response = await fetch(
-                "http://localhost/it-connect-php/auth/login.php",
+                "https://itconect.free.je/api/auth/login.php",
                 {
                     method: "POST",
                     headers: {
