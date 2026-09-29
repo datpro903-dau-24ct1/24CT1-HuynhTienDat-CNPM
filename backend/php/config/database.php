@@ -2,10 +2,10 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 
-$host = "localhost";
-$user = "root";
-$password = "123456";
-$database = "it_connect";
+$host = "sql302.infinityfree.com";
+$user = "if0_43021630 ";
+$password = "itconnect6";
+$database = "if0_43021630_itconnect";
 
 $conn = new mysqli(
     $host,

@@ -32,15 +32,15 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .header {
   width: 100%;
   height: 72px;
 
-  background: white;
+  background: #ffffff;
 
   display: flex;
   align-items: center;
@@ -56,9 +56,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    LOGO
-========================= */
+========================================================= */
 
 .logo {
   width: 210px;
@@ -74,9 +74,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    SEARCH
-========================= */
+========================================================= */
 
 .search {
   width: 430px;
@@ -108,9 +108,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    HEADER RIGHT
-========================= */
+========================================================= */
 
 .header-right {
   margin-left: auto;
@@ -122,9 +122,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    USER
-========================= */
+========================================================= */
 
 .user {
   display: flex;
@@ -148,25 +148,29 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    AVATAR
-========================= */
+========================================================= */
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
 
   border-radius: 50%;
 
+  overflow: hidden;
+
   background: #287bea;
 
-  color: white;
+  color: #ffffff;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
 
   flex-shrink: 0;
@@ -175,28 +179,42 @@ body {
 .avatar.big {
   width: 48px;
   height: 48px;
+  min-width: 48px;
 }
 
 .avatar.small {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
 
   font-size: 16px;
 }
 
+.avatar-image {
+  width: 100%;
+  height: 100%;
 
-/* =========================
+  display: block;
+
+  object-fit: cover;
+  object-position: center;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================================
    NOTIFICATION CONTAINER
-========================= */
+========================================================= */
 
 .notification-container {
   position: relative;
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION BUTTON
-========================= */
+========================================================= */
 
 .notification-wrapper {
   position: relative;
@@ -229,9 +247,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION BADGE
-========================= */
+========================================================= */
 
 .notification-badge {
   position: absolute;
@@ -248,7 +266,7 @@ body {
 
   background: #e41e3f;
 
-  color: white;
+  color: #ffffff;
 
   font-size: 11px;
   font-weight: 700;
@@ -257,13 +275,13 @@ body {
   align-items: center;
   justify-content: center;
 
-  border: 2px solid white;
+  border: 2px solid #ffffff;
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION DROPDOWN
-========================= */
+========================================================= */
 
 .notification-dropdown {
   position: absolute;
@@ -274,7 +292,7 @@ body {
   width: 390px;
   max-height: 540px;
 
-  background: white;
+  background: #ffffff;
 
   border-radius: 12px;
 
@@ -289,9 +307,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION HEADER
-========================= */
+========================================================= */
 
 .notification-header {
   min-height: 65px;
@@ -330,9 +348,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION LIST
-========================= */
+========================================================= */
 
 .notification-list {
   max-height: 410px;
@@ -341,9 +359,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION ITEM
-========================= */
+========================================================= */
 
 .notification-item {
   position: relative;
@@ -418,9 +436,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    UNREAD DOT
-========================= */
+========================================================= */
 
 .notification-unread-dot {
   position: absolute;
@@ -437,9 +455,9 @@ body {
 }
 
 
-/* =========================
-   EMPTY
-========================= */
+/* =========================================================
+   NOTIFICATION EMPTY
+========================================================= */
 
 .notification-empty {
   min-height: 230px;
@@ -489,9 +507,9 @@ body {
 }
 
 
-/* =========================
+/* =========================================================
    NOTIFICATION FOOTER
-========================= */
+========================================================= */
 
 .notification-footer {
   border-top: 1px solid #eeeeee;
@@ -571,7 +589,6 @@ body {
 
   justify-content: space-between;
 
-  /* Đẩy sidebar sát về bên trái */
   transform: translateX(-200px);
 }
 
@@ -585,7 +602,7 @@ body {
 
 
 /* =========================================================
-   MENU TRÁI - KIỂU GIỐNG BẠN BÈ BÊN PHẢI
+   MENU TRÁI
 ========================================================= */
 
 .menu {
@@ -625,11 +642,12 @@ body {
 }
 
 
-/* icon */
+/* =========================================================
+   MENU ICON
+========================================================= */
 
 .menu span {
   width: 44px;
-
   height: 44px;
 
   min-width: 44px;
@@ -645,7 +663,6 @@ body {
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
   text-align: center;
@@ -656,7 +673,9 @@ body {
 }
 
 
-/* hover */
+/* =========================================================
+   MENU HOVER
+========================================================= */
 
 .menu:hover {
   background: #e4e6eb;
@@ -669,7 +688,9 @@ body {
 }
 
 
-/* menu đang chọn */
+/* =========================================================
+   MENU ACTIVE
+========================================================= */
 
 .menu.active {
   background: transparent;
@@ -719,7 +740,6 @@ body {
   margin: 0;
   padding: 0;
 
-  /* Đưa khu vực bài viết về chính giữa màn hình */
   transform: translateX(-55px);
 }
 
@@ -731,7 +751,7 @@ body {
 .create-post {
   width: 720px;
 
-  background: white;
+  background: #ffffff;
 
   border: 1px solid #e1e5ea;
 
@@ -818,7 +838,7 @@ body {
 
   background: #1877f2;
 
-  color: white;
+  color: #ffffff;
 
   font-weight: 600;
 }
@@ -858,7 +878,7 @@ body {
 .post {
   width: 720px;
 
-  background: white;
+  background: #ffffff;
 
   border: 1px solid #e1e5ea;
 
@@ -869,82 +889,122 @@ body {
   overflow: hidden;
 }
 
+
 /* =========================================================
    POST HEADER
 ========================================================= */
 
 .post-header {
   width: 100%;
+
   display: flex;
+
   align-items: center;
+
   justify-content: flex-start;
+
   gap: 12px;
+
   padding: 18px 20px;
+
   box-sizing: border-box;
 }
+
+
 /* Avatar người đăng */
+
 .post-header > .avatar {
   width: 48px;
+
   height: 48px;
+
   min-width: 48px;
+
   flex: 0 0 48px;
 }
 
+
 /* Khối thông tin người đăng */
+
 .post-header > div:last-child {
   flex: 0 0 auto;
+
   width: auto;
+
   min-width: 0;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: flex-start;
+
   justify-content: center;
 }
 
+
 /* Tên người đăng */
+
 .post-header h3 {
   width: auto;
+
   margin: 0 0 3px;
+
   padding: 0;
 
   font-size: 16px;
+
   font-weight: 700;
+
   line-height: 20px;
 
   color: #111827;
+
   text-align: left;
 }
 
+
 /* Thời gian + Khoa CNTT */
+
 .post-header span {
   display: block;
+
   width: auto;
 
   margin: 0;
+
   padding: 0;
 
   color: #65676b;
+
   font-size: 13px;
+
   line-height: 18px;
 
   text-align: left;
+
   white-space: nowrap;
 }
+
 
 /* =========================================================
    POST CONTENT
 ========================================================= */
 
 .post-content {
+  width: 100%;
+
   padding: 10px 28px 24px;
 
-  min-height: 0px;
+  min-height: 0;
 
   display: flex;
 
-  align-items: left;
+  align-items: flex-start;
 
-  justify-content: left;
+  justify-content: flex-start;
+
+  box-sizing: border-box;
 }
 
 .post-content p {
@@ -956,9 +1016,11 @@ body {
 
   color: #111827;
 
-  text-align: center;
+  text-align: left;
 
   word-break: break-word;
+
+  width: 100%;
 }
 
 
@@ -1058,7 +1120,7 @@ body {
 
   padding: 0 15px;
 
-  background: white;
+  background: #ffffff;
 
   font-size: 14px;
 }
@@ -1078,7 +1140,7 @@ body {
 
   background: #1877f2;
 
-  color: white;
+  color: #ffffff;
 
   font-weight: 600;
 
@@ -1208,7 +1270,9 @@ body {
 }
 
 
-/* scrollbar */
+/* =========================================================
+   SCROLLBAR
+========================================================= */
 
 .right-box::-webkit-scrollbar {
   width: 7px;
@@ -1253,33 +1317,47 @@ body {
 .friend {
   width: 100%;
 
-  max-width: 100%;
-
-  min-width: 0;
-
-  min-height: 58px;
-
   display: flex;
 
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
 
-  margin: 0;
-
-  padding: 7px 10px;
-
-  border-radius: 8px;
+  margin-bottom: 8px;
 
   cursor: pointer;
 
-  border: none;
+  padding: 8px;
+
+  border-radius: 8px;
 
   transition: background 0.15s ease;
+
+  box-sizing: border-box;
 }
 
 .friend:hover {
-  background: #e4e6eb;
+  background: #f0f2f5;
+}
+
+.friend-name {
+  display: block;
+
+  width: 100%;
+
+  cursor: pointer;
+
+  transition: color 0.15s ease;
+}
+
+.friend-info {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.friend-info:hover .friend-name {
+  color: #1877f2;
 }
 
 
@@ -1313,6 +1391,8 @@ body {
   font-weight: 600;
 
   position: relative;
+
+  flex-shrink: 0;
 }
 
 
@@ -1368,9 +1448,12 @@ body {
 
   line-height: 16px;
 }
+
+
 /* =========================================================
    XEM TẤT CẢ
 ========================================================= */
+
 .right-box .view-all {
   width: calc(100% - 20px);
 
@@ -1396,6 +1479,8 @@ body {
 .right-box .view-all:hover {
   background: #d8e7ff;
 }
+
+
 /* =========================================================
    CHƯA CÓ BẠN
 ========================================================= */
@@ -1462,9 +1547,901 @@ body {
 .right-sidebar .right-notification {
   display: none;
 }
+
+
 /* =========================================================
-   RESPONSIVE
+   FILE ĐƯỢC CHỌN KHI ĐĂNG BÀI
 ========================================================= */
+
+.selected-media {
+  position: relative;
+
+  margin: 12px 0;
+
+  border: 1px solid #ddd;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  background: #f8f8f8;
+}
+
+.remove-media {
+  position: absolute;
+
+  right: 10px;
+  top: 10px;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.7);
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  z-index: 5;
+}
+
+.media-preview-image {
+  display: block;
+
+  width: 100%;
+
+  max-height: 400px;
+
+  object-fit: contain;
+
+  background: #000000;
+}
+
+.media-preview-video {
+  display: block;
+
+  width: 100%;
+
+  max-height: 400px;
+
+  background: #000000;
+}
+
+.file-preview {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 18px;
+}
+
+.file-preview-icon {
+  font-size: 35px;
+}
+
+.file-preview strong {
+  display: block;
+
+  word-break: break-word;
+}
+
+.file-preview small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #777;
+}
+
+
+/* =========================================================
+   MEDIA TRONG BÀI VIẾT
+========================================================= */
+
+.post-media {
+  width: 100%;
+
+  margin-top: 12px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #000000;
+}
+
+.post-image {
+  display: block;
+
+  width: 100%;
+
+  max-height: 650px;
+
+  object-fit: contain;
+
+  background: #000000;
+}
+
+.post-video {
+  display: block;
+
+  width: 100%;
+
+  max-height: 650px;
+
+  background: #000000;
+}
+
+
+/* =========================================================
+   FILE TRONG BÀI VIẾT
+========================================================= */
+
+.post-file {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 14px;
+
+  padding: 15px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 10px;
+
+  background: #f7f7f7;
+}
+
+.post-file-icon {
+  width: 45px;
+  height: 45px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  font-size: 25px;
+
+  flex-shrink: 0;
+}
+
+.post-file-info {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.post-file-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.post-file-info span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+.post-file-button {
+  padding: 8px 14px;
+
+  border-radius: 7px;
+
+  background: #f0f0f0;
+
+  color: #222;
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.post-file-button:hover {
+  background: #e2e2e2;
+}
+
+
+/* =========================================================
+   CHAT POPUP
+========================================================= */
+
+.chat-popup {
+  position: fixed;
+
+  right: 24px;
+  bottom: 0;
+
+  width: 340px;
+  height: 430px;
+
+  background: #ffffff;
+
+  border-radius: 10px 10px 0 0;
+
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+
+  flex-direction: column;
+
+  overflow: hidden;
+
+  z-index: 6000;
+}
+
+
+/* =========================================================
+   CHAT HEADER
+========================================================= */
+
+.chat-popup-header {
+  height: 58px;
+
+  padding: 8px 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  flex-shrink: 0;
+}
+
+.chat-user {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.chat-user strong {
+  font-size: 15px;
+
+  color: #111827;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.chat-close {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  font-size: 25px;
+
+  line-height: 1;
+
+  color: #65676b;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.chat-close:hover {
+  background: #f0f2f5;
+}
+
+
+/* =========================================================
+   CHAT BODY
+========================================================= */
+
+.chat-popup-body {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 12px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.chat-message-row {
+  display: flex;
+
+  width: 100%;
+}
+
+.chat-message-row.mine {
+  justify-content: flex-end;
+}
+
+.chat-message-row.other {
+  justify-content: flex-start;
+}
+
+.chat-message {
+  max-width: 75%;
+
+  padding: 8px 12px;
+
+  border-radius: 16px;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+
+  word-break: break-word;
+
+  white-space: pre-wrap;
+}
+
+.chat-message-row.mine .chat-message {
+  background: #1877f2;
+
+  color: #ffffff;
+
+  border-bottom-right-radius: 5px;
+}
+
+.chat-message-row.other .chat-message {
+  background: #e4e6eb;
+
+  color: #111827;
+
+  border-bottom-left-radius: 5px;
+}
+
+
+/* =========================================================
+   CHAT EMPTY / LOADING
+========================================================= */
+
+.chat-empty,
+.chat-loading {
+  flex: 1;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #65676b;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CHAT INPUT
+========================================================= */
+
+.chat-popup-input {
+  min-height: 54px;
+
+  padding: 8px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  flex-shrink: 0;
+}
+
+.chat-popup-input textarea {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 38px;
+
+  max-height: 80px;
+
+  resize: none;
+
+  border: none;
+
+  outline: none;
+
+  background: #f0f2f5;
+
+  border-radius: 20px;
+
+  padding: 10px 14px;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  font-size: 14px;
+
+  line-height: 18px;
+}
+
+.chat-popup-input button {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #1877f2;
+
+  color: #ffffff;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.chat-popup-input button:hover {
+  background: #166fe5;
+}
+
+.chat-popup-input button:disabled {
+  background: #c7d8f5;
+
+  cursor: default;
+}
+
+
+/* =========================================================
+   POPUP CHIA SẺ BÀI VIẾT
+========================================================= */
+
+.share-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+.share-popup {
+  width: 430px;
+
+  max-width: 100%;
+
+  max-height: 80vh;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.25);
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   SHARE HEADER
+========================================================= */
+
+.share-popup-header {
+  min-height: 58px;
+
+  padding: 0 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  box-sizing: border-box;
+
+  flex-shrink: 0;
+}
+
+.share-popup-header strong {
+  font-size: 18px;
+
+  color: #111827;
+}
+
+.share-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f0f2f5;
+
+  color: #65676b;
+
+  font-size: 24px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.share-close:hover {
+  background: #e4e6eb;
+}
+
+
+/* =========================================================
+   SHARE POST PREVIEW
+========================================================= */
+
+.share-post-preview {
+  padding: 14px 16px;
+
+  background: #f8f9fa;
+
+  border-bottom: 1px solid #eeeeee;
+
+  flex-shrink: 0;
+}
+
+.share-post-preview strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 14px;
+
+  color: #111827;
+}
+
+.share-post-preview p {
+  margin: 0;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  color: #65676b;
+
+  word-break: break-word;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 3;
+
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   SHARE SEARCH
+========================================================= */
+
+.share-search {
+  padding: 12px 16px;
+
+  border-bottom: 1px solid #eeeeee;
+
+  flex-shrink: 0;
+}
+
+.share-search input {
+  width: 100%;
+
+  height: 40px;
+
+  padding: 0 15px;
+
+  border: none;
+
+  outline: none;
+
+  background: #f0f2f5;
+
+  border-radius: 20px;
+
+  box-sizing: border-box;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  font-size: 14px;
+}
+
+.share-search input:focus {
+  background: #e4e6eb;
+}
+
+
+/* =========================================================
+   SHARE FRIENDS LIST
+========================================================= */
+
+.share-friends-list {
+  flex: 1;
+
+  min-height: 0;
+
+  max-height: 420px;
+
+  overflow-y: auto;
+
+  padding: 8px;
+}
+
+.share-friends-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.share-friends-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.share-friends-list::-webkit-scrollbar-thumb {
+  background: #c5c7ca;
+
+  border-radius: 10px;
+}
+
+.share-friends-list::-webkit-scrollbar-thumb:hover {
+  background: #aeb1b5;
+}
+
+
+/* =========================================================
+   SHARE FRIEND
+========================================================= */
+
+.share-friend {
+  width: 100%;
+
+  min-height: 58px;
+
+  padding: 8px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  border-radius: 8px;
+
+  box-sizing: border-box;
+}
+
+.share-friend:hover {
+  background: #f0f2f5;
+}
+
+
+/* =========================================================
+   SHARE FRIEND INFO
+========================================================= */
+
+.share-friend-info {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.share-friend-info .avatar {
+  width: 42px;
+
+  height: 42px;
+
+  min-width: 42px;
+
+  font-size: 15px;
+
+  flex-shrink: 0;
+}
+
+.share-friend-text {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+.share-friend-text strong {
+  display: block;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #111827;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.share-friend-text span {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 12px;
+
+  color: #65676b;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   SHARE BUTTON
+========================================================= */
+
+.share-send-btn,
+.share-sent-btn {
+  width: 64px;
+
+  height: 34px;
+
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 7px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.share-send-btn {
+  background: #1877f2;
+
+  color: #ffffff;
+}
+
+.share-send-btn:hover {
+  background: #166fe5;
+}
+
+.share-send-btn:disabled {
+  opacity: 0.7;
+
+  cursor: default;
+}
+
+.share-sent-btn {
+  background: #e4e6eb;
+
+  color: #65676b;
+
+  cursor: default;
+}
+
+
+/* =========================================================
+   SHARE EMPTY
+========================================================= */
+
+.share-empty {
+  min-height: 160px;
+
+  padding: 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #65676b;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   RESPONSIVE - 1450PX
+========================================================= */
+
 @media (max-width: 1450px) {
 
   .main-layout {
@@ -1509,11 +2486,17 @@ body {
     width: 350px;
   }
 }
+
+
 /* =========================================================
-   TABLET
+   TABLET - 1100PX
 ========================================================= */
 
 @media (max-width: 1100px) {
+
+  .header {
+    padding: 0 20px;
+  }
 
   .main-layout {
     grid-template-columns:
@@ -1557,11 +2540,17 @@ body {
     width: 320px;
   }
 }
+
+
 /* =========================================================
-   MÀN HÌNH NHỎ
+   MÀN HÌNH NHỎ - 900PX
 ========================================================= */
 
 @media (max-width: 900px) {
+
+  .header {
+    padding: 0 16px;
+  }
 
   .main-layout {
     grid-template-columns:
@@ -1589,603 +2578,771 @@ body {
   .post {
     width: 100%;
   }
+
+  .notification-dropdown {
+    right: -20px;
+  }
 }
+
+
 /* =========================================================
-   MOBILE
+   MOBILE - ĐIỆN THOẠI
 ========================================================= */
 
 @media (max-width: 700px) {
 
+  /* =========================
+     HEADER MOBILE
+  ========================= */
+
   .header {
-    padding: 0 15px;
+    height: 58px;
+
+    padding: 0 10px;
+
+    gap: 8px;
   }
 
   .logo {
     width: auto;
 
-    font-size: 18px;
-  }
-
-  .search {
     flex: 1;
 
-    width: auto;
+    min-width: 0;
 
-    margin-left: 15px;
-  }
+    font-size: 18px;
 
-  .user span {
-    display: none;
-  }
+    overflow: hidden;
 
-  .main-layout {
-    display: block;
-
-    padding: 15px;
-  }
-
-  .sidebar {
-    position: static;
-
-    width: 100%;
-
-    height: auto;
-
-    margin-bottom: 15px;
-  }
-
-  .sidebar nav {
-    flex-direction: row;
-
-    overflow-x: auto;
-  }
-
-  .menu {
-    min-width: 120px;
-  }
-
-  .sidebar-bottom {
-    display: none;
-  }
-
-  .content {
-    width: 100%;
-
-    max-width: none;
-  }
-
-  .create-post,
-  .post {
-    width: 100%;
-  }
-
-  .notification-dropdown {
-    width: min(
-      390px,
-      calc(100vw - 30px)
-    );
-
-    right: -100px;
-  }
-}
-/* =========================================================
-   ĐIỆN THOẠI NHỎ
-========================================================= */
-
-@media (max-width: 500px) {
-
-  .header {
-    height: 64px;
-  }
-
-  .logo {
-    font-size: 16px;
+    text-overflow: ellipsis;
   }
 
   .search {
-    height: 40px;
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+
+    justify-content: center;
   }
 
   .search input {
-    font-size: 13px;
+    display: none;
+  }
+
+  .header-right {
+    margin-left: 0;
+
+    gap: 5px;
+
+    flex-shrink: 0;
+  }
+
+  .user {
+    padding: 3px;
+  }
+
+  .user > span,
+  .user strong,
+  .user .user-name {
+    display: none;
+  }
+
+  .notification-wrapper {
+    width: 38px;
+    height: 38px;
+  }
+
+  .notification-icon {
+    font-size: 21px;
+  }
+
+  .notification-badge {
+    top: -2px;
+    right: -2px;
+
+    min-width: 18px;
+    height: 18px;
+
+    font-size: 10px;
+  }
+
+  .notification-dropdown {
+    position: fixed;
+
+    top: 64px;
+
+    left: 8px;
+    right: 8px;
+
+    width: auto;
+
+    max-width: none;
+
+    max-height: 75vh;
+
+    border-radius: 12px;
+  }
+
+
+  /* =========================
+     MAIN LAYOUT
+  ========================= */
+
+  .main-layout {
+    width: 100%;
+
+    display: block;
+
+    padding: 10px 8px 80px 8px;
+
+    margin: 0;
+
+    box-sizing: border-box;
+
+    transform: none !important;
+  }
+
+
+  /* =========================
+     SIDEBAR TRÁI
+  ========================= */
+
+  .sidebar {
+    display: none !important;
+  }
+
+
+  /* =========================
+     CONTENT
+  ========================= */
+
+  .content {
+    width: 100% !important;
+
+    max-width: none !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    transform: none !important;
+
+    box-sizing: border-box;
+  }
+
+
+  /* =========================
+     RIGHT SIDEBAR
+  ========================= */
+
+  .right-sidebar {
+    display: none !important;
+  }
+
+
+  /* =========================
+     CREATE POST
+  ========================= */
+
+  .create-post {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    padding: 12px;
+
+    margin-bottom: 12px;
+
+    border-radius: 10px;
+
+    box-sizing: border-box;
+  }
+
+  .post-user {
+    gap: 8px;
+  }
+
+  .post-user input {
+    height: 42px;
+
+    padding: 0 15px;
+
+    font-size: 14px;
+  }
+
+
+  /* =========================
+     POST
+  ========================= */
+
+  .post {
+    width: 100% !important;
+
+    max-width: 100% !important;
+
+    margin-bottom: 12px;
+
+    border-radius: 10px;
+
+    box-sizing: border-box;
+  }
+
+
+  /* =========================
+     POST HEADER
+  ========================= */
+
+  .post-header {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    gap: 10px;
+
+    box-sizing: border-box;
+  }
+
+  .post-header > .avatar {
+    width: 42px !important;
+
+    height: 42px !important;
+
+    min-width: 42px !important;
+
+    flex: 0 0 42px !important;
+  }
+
+  .post-header h3 {
+    max-width: calc(100vw - 100px);
+
+    font-size: 15px;
+
+    line-height: 19px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+  .post-header span {
+    max-width: calc(100vw - 100px);
+
+    font-size: 12px;
+
+    line-height: 16px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+
+  /* =========================
+     POST CONTENT
+  ========================= */
+
+  .post-content {
+    width: 100%;
+
+    padding: 10px 14px 16px;
+
+    box-sizing: border-box;
   }
 
   .post-content p {
     font-size: 16px;
+
+    line-height: 1.5;
+
+    text-align: left;
   }
 
-  .post-actions .post-btn {
-    flex: 0 0 90px;
+
+  /* =========================
+     ẢNH / VIDEO TRONG POST
+  ========================= */
+
+  .post img,
+  .post video {
+    display: block;
+
+    width: 100%;
+
+    max-width: 100%;
+
+    height: auto;
+
+    object-fit: contain;
   }
+
+  .post-media {
+    margin-top: 8px;
+
+    border-radius: 8px;
+  }
+
+  .post-image,
+  .post-video {
+    width: 100%;
+
+    max-height: 500px;
+  }
+
+
+  /* =========================
+     POST STATS
+  ========================= */
+
+  .post-stats {
+    padding: 9px 12px;
+
+    font-size: 12px;
+  }
+
+
+  /* =========================
+     POST FOOTER
+  ========================= */
 
   .post-footer button {
+    height: 46px;
+
     font-size: 13px;
   }
 
-  .notification-dropdown {
-    right: -120px;
+
+  /* =========================
+     POST ACTIONS
+  ========================= */
+
+  .post-actions {
+    width: 100%;
+
+    gap: 5px;
+
+    box-sizing: border-box;
+  }
+
+  .post-actions button {
+    min-height: 42px;
+
+    font-size: 13px;
+  }
+
+  .post-actions .post-btn {
+    flex: 0 0 95px;
+  }
+
+
+  /* =========================
+     FORM ĐĂNG BÀI
+  ========================= */
+
+  .create-post textarea,
+  .create-post input {
+    width: 100% !important;
+
+    box-sizing: border-box;
+
+    font-size: 16px;
+  }
+
+
+  /* =========================
+     NÚT MEDIA
+  ========================= */
+
+  .post-options {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    box-sizing: border-box;
+  }
+
+  .post-options button {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 9px 4px;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+  }
+
+
+  /* =========================
+     FRIEND
+  ========================= */
+
+  .friends-section,
+  .messages-section {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .friend {
+    width: 100%;
+
+    padding: 8px;
+
+    box-sizing: border-box;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+  }
+
+  .friend .avatar {
+    flex-shrink: 0;
+  }
+
+  .friend-name {
+    min-width: 0;
+
+    font-size: 14px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+  }
+
+
+  /* =========================
+     CHAT POPUP MOBILE
+  ========================= */
+
+  .chat-popup {
+    position: fixed;
+
+    left: 8px;
+
+    right: 8px;
+
+    bottom: 8px;
+
+    width: auto !important;
+
+    height: min(70vh, 520px) !important;
+
+    border-radius: 12px;
+
+    z-index: 9999;
+
+    box-sizing: border-box;
+  }
+
+  .chat-popup-header {
+    min-height: 54px;
+
+    height: 54px;
+
+    padding: 8px 10px;
+  }
+
+  .chat-user {
+    min-width: 0;
+  }
+
+  .chat-user strong {
+    max-width: 220px;
+
+    font-size: 14px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+  }
+
+  .chat-popup-body {
+    padding: 10px;
+
+    gap: 5px;
+
+    overflow-y: auto;
+  }
+
+  .chat-message {
+    max-width: 82%;
+
+    font-size: 14px;
+
+    padding: 8px 11px;
+  }
+
+  .chat-popup-input {
+    min-height: 56px;
+
+    padding: 8px;
+  }
+
+  .chat-popup-input textarea {
+    min-width: 0;
+
+    font-size: 16px;
+  }
+
+  .chat-popup-input button {
+    width: 40px;
+
+    height: 40px;
+  }
+
+
+  /* =========================
+     SHARE POPUP MOBILE
+  ========================= */
+
+  .share-overlay {
+    padding: 10px;
+  }
+
+  .share-popup {
+    width: 100%;
+
+    max-width: 100%;
+
+    max-height: 85vh;
+
+    border-radius: 12px;
+  }
+
+  .share-popup-header {
+    min-height: 54px;
+
+    height: 54px;
+
+    padding: 0 14px;
+  }
+
+  .share-popup-header strong {
+    font-size: 17px;
+  }
+
+  .share-post-preview {
+    padding: 12px 14px;
+  }
+
+  .share-search {
+    padding: 10px 14px;
+  }
+
+  .share-friends-list {
+    max-height: 55vh;
+
+    padding: 6px;
+  }
+
+  .share-friend {
+    min-height: 56px;
+
+    padding: 8px 6px;
+  }
+
+  .share-friend-info .avatar {
+    width: 40px;
+
+    height: 40px;
+
+    min-width: 40px;
+  }
+
+  .share-send-btn,
+  .share-sent-btn {
+    width: 58px;
+
+    height: 34px;
+  }
+
+
+  /* =========================
+     MOBILE NAV
+     ========================= */
+
+  .mobile-bottom-nav {
+    display: none;
   }
 }
-/* ========================================
-   AVATAR IMAGE
-======================================== */
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  border-radius: 50%;
+
+
+/* =========================================================
+   ĐIỆN THOẠI RẤT NHỎ
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .header {
+    padding: 0 7px;
+  }
+
+  .logo {
+    font-size: 17px;
+  }
+
+  .main-layout {
+    padding-left: 5px;
+
+    padding-right: 5px;
+  }
+
+  .post-header {
+    padding-left: 9px;
+
+    padding-right: 9px;
+  }
+
+  .post-content {
+    padding-left: 11px;
+
+    padding-right: 11px;
+  }
+
+  .post-options button {
+    font-size: 11px;
+
+    padding-left: 2px;
+
+    padding-right: 2px;
+  }
+
+  .post-footer button {
+    font-size: 12px;
+  }
+
+  .chat-popup {
+    left: 4px;
+
+    right: 4px;
+
+    bottom: 4px;
+  }
+
+  .share-overlay {
+    padding: 6px;
+  }
+
+  .share-popup {
+    max-height: 90vh;
+  }
+
+  .share-popup-header strong {
+    font-size: 16px;
+  }
+
+  .share-post-preview p {
+    font-size: 12px;
+  }
+
+  .share-friend-text strong {
+    font-size: 13px;
+  }
+
+  .share-friend-text span {
+    font-size: 11px;
+  }
+
+  .share-send-btn,
+  .share-sent-btn {
+    width: 56px;
+
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   SHARE POPUP - DESKTOP FIX
+========================================================= */
+
+@media (min-width: 701px) {
+
+  .share-popup {
+    width: 430px;
+
+    min-height: 300px;
+  }
+
+  .share-friends-list {
+    max-height: 420px;
+  }
 }
 /* =====================================================
-   FILE ĐƯỢC CHỌN KHI ĐĂNG BÀI
+   LINK BÀI VIẾT ĐƯỢC CHIA SẺ TRONG CHAT
 ===================================================== */
-.selected-media {
-  position: relative;
-  margin: 12px 0;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #f8f8f8;
-}
-.remove-media {
-  position: absolute;
-  right: 10px;
-  top: 10px;
 
-  width: 32px;
-  height: 32px;
+.shared-post-link {
+  display: inline-flex;
+  align-items: center;
 
-  border: none;
-  border-radius: 50%;
+  margin-top: 8px;
+  padding: 7px 10px;
 
-  background: rgba(0, 0, 0, 0.7);
+  background: #1877f2;
   color: white;
-
-  font-size: 16px;
-
-  cursor: pointer;
-
-  z-index: 5;
-}
-.media-preview-image {
-  display: block;
-
-  width: 100%;
-  max-height: 400px;
-
-  object-fit: contain;
-
-  background: #000;
-}
-.media-preview-video {
-  display: block;
-
-  width: 100%;
-  max-height: 400px;
-
-  background: #000;
-}
-.file-preview {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  padding: 18px;
-}
-.file-preview-icon {
-  font-size: 35px;
-}
-
-.file-preview strong {
-  display: block;
-  word-break: break-word;
-}
-
-.file-preview small {
-  display: block;
-  margin-top: 4px;
-  color: #777;
-}
-/* =====================================================
- MEDIA TRONG BÀI VIẾT
-===================================================== */
-.post-media {
-  width: 100%;
-  margin-top: 12px;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #000;
-}
-
-.post-image {
-  display: block;
-
-  width: 100%;
-  max-height: 650px;
-
-  object-fit: contain;
-
-  background: #000;
-}
-
-.post-video {
-  display: block;
-
-  width: 100%;
-  max-height: 650px;
-
-  background: #000;
-}
-
-/* =====================================================
- FILE TRONG BÀI VIẾT
-===================================================== */
-.post-file {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  margin-top: 14px;
-  padding: 15px;
-
-  border: 1px solid #ddd;
-  border-radius: 10px;
-
-  background: #f7f7f7;
-}
-
-.post-file-icon {
-  width: 45px;
-  height: 45px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 8px;
-
-  background: #fff;
-
-  font-size: 25px;
-}
-
-.post-file-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.post-file-info strong {
-  display: block;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.post-file-info span {
-  display: block;
-
-  margin-top: 4px;
-
-  color: #777;
-  font-size: 13px;
-}
-
-.post-file-button {
-  padding: 8px 14px;
 
   border-radius: 7px;
 
-  background: #f0f0f0;
-
-  color: #222;
-
   text-decoration: none;
 
+  font-size: 13px;
   font-weight: 600;
 
-  white-space: nowrap;
+  cursor: pointer;
+
+  transition: 0.2s;
 }
 
-.post-file-button:hover {
-  background: #e2e2e2;
+.shared-post-link:hover {
+  background: #166fe5;
+  text-decoration: none;
 }
 
 /* =====================================================
- AVATAR
+ HIGHLIGHT BÀI VIẾT KHI MỞ TỪ LINK CHIA SẺ
 ===================================================== */
-.avatar {
-  width: 44px;
-  height: 44px;
 
-  min-width: 44px;
-
-  border-radius: 50%;
-
-  overflow: hidden;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.avatar.big {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+.post.shared-post-highlight {
+  animation: sharedPostHighlight 2.5s ease;
 }
 
-.avatar.small {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: cover;
-  object-position: center;
-
-  border-radius: 50%;
-}
-/* =========================
-   FRIEND NAME
-========================= */
-.friend-name {
-  display: block;
-  width: 100%;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-.friend-info:hover .friend-name {
-  color: #1877f2;
-}
-
-/* =========================
-   CHAT POPUP
-========================= */
-.chat-popup {
-  position: fixed;
-  right: 24px;
-  bottom: 0;
-
-  width: 340px;
-  height: 430px;
-
-  background: #ffffff;
-
-  border-radius: 10px 10px 0 0;
-
-  box-shadow:
-    0 4px 18px rgba(0, 0, 0, 0.2);
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden;
-
-  z-index: 1000;
-}
-
-
-/* =========================
-   CHAT HEADER
-========================= */
-
-.chat-popup-header {
-  height: 58px;
-
-  padding: 8px 12px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background: #ffffff;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.chat-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  min-width: 0;
-}
-
-.chat-user strong {
-  font-size: 15px;
-  color: #111827;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chat-close {
-  width: 32px;
-  height: 32px;
-
-  border: none;
-  border-radius: 50%;
-
-  background: transparent;
-
-  font-size: 25px;
-  line-height: 1;
-
-  color: #65676b;
-
-  cursor: pointer;
-}
-
-.chat-close:hover {
-  background: #f0f2f5;
-}
-
-
-/* =========================
-   CHAT BODY
-========================= */
-
-.chat-popup-body {
-  flex: 1;
-
-  padding: 12px;
-
-  overflow-y: auto;
-
-  background: #ffffff;
-
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.chat-message-row {
-  display: flex;
-  width: 100%;
-}
-
-.chat-message-row.mine {
-  justify-content: flex-end;
-}
-
-.chat-message-row.other {
-  justify-content: flex-start;
-}
-
-.chat-message {
-  max-width: 75%;
-
-  padding: 8px 12px;
-
-  border-radius: 16px;
-
-  font-size: 14px;
-  line-height: 1.4;
-
-  word-break: break-word;
-}
-
-.chat-message-row.mine .chat-message {
-  background: #1877f2;
-  color: white;
-
-  border-bottom-right-radius: 5px;
-}
-
-.chat-message-row.other .chat-message {
-  background: #e4e6eb;
-  color: #111827;
-
-  border-bottom-left-radius: 5px;
-}
-
-
-/* =========================
-   CHAT EMPTY / LOADING
-========================= */
-
-.chat-empty,
-.chat-loading {
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #65676b;
-
-  font-size: 14px;
-}
-
-
-/* =========================
-   CHAT INPUT
-========================= */
-
-.chat-popup-input {
-  min-height: 54px;
-
-  padding: 8px;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  border-top: 1px solid #e5e7eb;
-
-  background: #ffffff;
-}
-
-.chat-popup-input textarea {
-  flex: 1;
-
-  height: 38px;
-  max-height: 80px;
-
-  resize: none;
-
-  border: none;
-  outline: none;
-
-  background: #f0f2f5;
-
-  border-radius: 20px;
-
-  padding: 10px 14px;
-
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-
-  line-height: 18px;
-}
-
-.chat-popup-input button {
-  width: 38px;
-  height: 38px;
-
-  flex-shrink: 0;
-
-  border: none;
-  border-radius: 50%;
-
-  background: #1877f2;
-  color: white;
-
-  font-size: 18px;
-
-  cursor: pointer;
-}
-
-.chat-popup-input button:hover {
-  background: #166fe5;
-}
-
-.chat-popup-input button:disabled {
-  background: #c7d8f5;
-  cursor: default;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 600px) {
-
-  .chat-popup {
-    right: 10px;
-    left: 10px;
-
-    width: auto;
-
-    height: 60vh;
+@keyframes sharedPostHighlight {
+  0% {
+      box-shadow:
+          0 0 0 4px rgba(24, 119, 242, 0.55),
+          0 10px 30px rgba(24, 119, 242, 0.25);
   }
 
+  50% {
+      box-shadow:
+          0 0 0 4px rgba(24, 119, 242, 0.35),
+          0 10px 30px rgba(24, 119, 242, 0.18);
+  }
+
+  100% {
+      box-shadow:
+          0 0 0 0 rgba(24, 119, 242, 0),
+          none;
+  }
 }

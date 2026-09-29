@@ -91,6 +91,15 @@ function Home() {
     const [sendingMessage, setSendingMessage] = useState(false);
 
     // =========================
+    // STATE CHIA SẺ BÀI VIẾT
+    // =========================
+
+    const [sharePost, setSharePost] = useState(null);
+    const [shareSearch, setShareSearch] = useState("");
+    const [sharingFriendId, setSharingFriendId] = useState(null);
+    const [sharedFriendIds, setSharedFriendIds] = useState({});
+
+    // =========================
     // STATE THÔNG BÁO
     // =========================
 
@@ -139,7 +148,6 @@ function Home() {
                     ? data
                     : []
             );
-
         } catch (error) {
             console.log(
                 "Lỗi lấy bài viết:",
@@ -182,7 +190,6 @@ function Home() {
                     ? data
                     : []
             );
-
         } catch (error) {
             console.log(
                 "Lỗi lấy danh sách bạn bè:",
@@ -190,7 +197,6 @@ function Home() {
             );
 
             setFriends([]);
-
         } finally {
             setLoadingFriends(false);
         }
@@ -237,7 +243,6 @@ function Home() {
             ) {
                 setUnreadCount(count);
             }
-
         } catch (error) {
             console.log(
                 "Lỗi lấy thông báo:",
@@ -282,7 +287,6 @@ function Home() {
                     ? data
                     : []
             );
-
         } catch (error) {
             console.log(
                 "Lỗi lấy tin nhắn:",
@@ -290,14 +294,13 @@ function Home() {
             );
 
             setChatMessages([]);
-
         } finally {
             setLoadingChat(false);
         }
     };
 
     // =====================================================
-    // GỬI TIN NHẮN
+    // GỬI TIN NHẮN CHAT BÌNH THƯỜNG
     // =====================================================
 
     const handleSendMessage = async () => {
@@ -310,8 +313,7 @@ function Home() {
             return;
         }
 
-        const messageContent =
-            chatInput.trim();
+        const messageContent = chatInput.trim();
 
         setSendingMessage(true);
 
@@ -328,16 +330,13 @@ function Home() {
 
                     body: JSON.stringify({
                         sender_id: user.id,
-                        receiver_id:
-                            selectedFriend.id,
-                        content:
-                            messageContent
+                        receiver_id: selectedFriend.id,
+                        content: messageContent
                     })
                 }
             );
 
-            const data =
-                await response.json();
+            const data = await response.json();
 
             if (!response.ok) {
                 console.log(
@@ -366,13 +365,11 @@ function Home() {
                         : []
                 );
             }
-
         } catch (error) {
             console.log(
                 "Lỗi gửi tin nhắn:",
                 error
             );
-
         } finally {
             setSendingMessage(false);
         }
@@ -394,6 +391,188 @@ function Home() {
     };
 
     // =====================================================
+    // MỞ POPUP CHIA SẺ BÀI VIẾT
+    // =====================================================
+
+    const handleOpenShare = (post) => {
+        setSharePost(post);
+        setShareSearch("");
+        setSharedFriendIds({});
+        setSharingFriendId(null);
+    };
+
+    // =====================================================
+    // ĐÓNG POPUP CHIA SẺ
+    // =====================================================
+
+    const handleCloseShare = () => {
+        setSharePost(null);
+        setShareSearch("");
+        setSharedFriendIds({});
+        setSharingFriendId(null);
+    };
+
+    // =====================================================
+    // CHIA SẺ BÀI VIẾT CHO BẠN BÈ
+    // =====================================================
+
+    const handleShareToFriend = async (friend) => {
+        if (
+            !user?.id ||
+            !sharePost?.id ||
+            !friend?.id ||
+            sharingFriendId
+        ) {
+            return;
+        }
+
+        if (sharedFriendIds[String(friend.id)]) {
+            return;
+        }
+
+        setSharingFriendId(friend.id);
+
+        const postContent =
+            sharePost.content?.trim() ||
+            "Bài viết có tệp đính kèm";
+
+        /*
+         * Chỉ lưu ID bài viết vào tin nhắn.
+         * Khi hiển thị chat, React sẽ biến ID này
+         * thành link "Xem bài viết".
+         */
+        const messageContent =
+            `📌 ${user.name || "Bạn của bạn"} đã chia sẻ một bài viết với bạn:\n\n` +
+            `“${postContent}”\n\n` +
+            `[[IT_CONNECT_POST:${sharePost.id}]]`;
+
+        try {
+            const response = await fetch(
+                "http://localhost/it-connect-php/messages/send.php",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        sender_id: user.id,
+                        receiver_id: friend.id,
+                        content: messageContent
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.log(
+                    data.message ||
+                    "Không thể chia sẻ bài viết!"
+                );
+
+                return;
+            }
+
+            setSharedFriendIds((current) => ({
+                ...current,
+                [String(friend.id)]: true
+            }));
+        } catch (error) {
+            console.log(
+                "Lỗi chia sẻ bài viết:",
+                error
+            );
+        } finally {
+            setSharingFriendId(null);
+        }
+    };
+
+    // =====================================================
+    // MỞ BÀI VIẾT ĐƯỢC CHIA SẺ
+    // =====================================================
+
+    const handleViewSharedPost = (postId) => {
+        if (!postId) {
+            return;
+        }
+
+        navigate(
+            `/home?post=${postId}`
+        );
+    };
+
+    // =====================================================
+    // TỰ ĐỘNG CUỘN ĐẾN BÀI VIẾT ĐƯỢC CHIA SẺ
+    // =====================================================
+
+    useEffect(() => {
+        if (
+            loadingPosts ||
+            posts.length === 0
+        ) {
+            return;
+        }
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const postId =
+            params.get("post");
+
+        if (!postId) {
+            return;
+        }
+
+        const targetId =
+            `post-${postId}`;
+
+        const scrollToPost = () => {
+            const postElement =
+                document.getElementById(
+                    targetId
+                );
+
+            if (!postElement) {
+                return false;
+            }
+
+            postElement.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+            postElement.classList.add(
+                "shared-post-highlight"
+            );
+
+            setTimeout(() => {
+                postElement.classList.remove(
+                    "shared-post-highlight"
+                );
+            }, 2500);
+
+            return true;
+        };
+
+        const timer =
+            setTimeout(() => {
+                scrollToPost();
+            }, 300);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [
+        posts,
+        loadingPosts
+    ]);
+
+    // =====================================================
     // CHỌN FILE
     // =====================================================
 
@@ -413,10 +592,6 @@ function Home() {
         setSelectedFile(file);
         setFileType(type);
 
-        // =========================
-        // TẠO PREVIEW
-        // =========================
-
         if (
             type === "image" ||
             type === "video"
@@ -425,9 +600,7 @@ function Home() {
                 URL.createObjectURL(file);
 
             setFilePreview(previewUrl);
-
         } else {
-
             setFilePreview(null);
         }
     };
@@ -437,7 +610,6 @@ function Home() {
     // =====================================================
 
     const handleRemoveFile = () => {
-
         if (filePreview) {
             URL.revokeObjectURL(
                 filePreview
@@ -486,10 +658,8 @@ function Home() {
     // =====================================================
 
     useEffect(() => {
-
         const handleClickOutside =
             (event) => {
-
                 if (
                     notificationRef.current &&
                     !notificationRef.current.contains(
@@ -511,7 +681,6 @@ function Home() {
                 handleClickOutside
             );
         };
-
     }, []);
 
     // =====================================================
@@ -522,7 +691,6 @@ function Home() {
         async (
             notificationId
         ) => {
-
             if (
                 !user?.id ||
                 !notificationId
@@ -544,7 +712,6 @@ function Home() {
             );
 
             try {
-
                 const response =
                     await fetch(
                         `http://localhost/it-connect-php/notifications/delete.php?id=${notificationId}&user_id=${user.id}`,
@@ -580,16 +747,12 @@ function Home() {
                                 )
                         )
                 );
-
             } catch (error) {
-
                 console.log(
                     "Lỗi xóa thông báo:",
                     error
                 );
-
             } finally {
-
                 setDeletingNotificationId(
                     null
                 );
@@ -604,7 +767,6 @@ function Home() {
         async (
             notification
         ) => {
-
             if (!notification) {
                 return;
             }
@@ -614,7 +776,6 @@ function Home() {
                     notification.is_read
                 ) === 0
             ) {
-
                 setNotifications(
                     (current) =>
                         current.map(
@@ -642,7 +803,6 @@ function Home() {
                 );
 
                 try {
-
                     const response =
                         await fetch(
                             `http://localhost/it-connect-php/notifications/read.php?id=${notification.id}`,
@@ -663,9 +823,7 @@ function Home() {
                             response.status
                         );
                     }
-
                 } catch (error) {
-
                     console.log(
                         "Lỗi đánh dấu thông báo:",
                         error
@@ -682,7 +840,6 @@ function Home() {
         (
             notification
         ) => {
-
             if (!notification) {
                 return;
             }
@@ -699,7 +856,6 @@ function Home() {
                 notification.type ===
                 "friend_request"
             ) {
-
                 navigate(
                     "/friends?tab=requests"
                 );
@@ -711,7 +867,6 @@ function Home() {
                 notification.type ===
                 "friend_accept"
             ) {
-
                 navigate(
                     "/friends"
                 );
@@ -723,17 +878,13 @@ function Home() {
                 notification.type ===
                 "message"
             ) {
-
                 if (
                     notification.from_user_id
                 ) {
-
                     navigate(
                         `/messages?user=${notification.from_user_id}`
                     );
-
                 } else {
-
                     navigate(
                         "/messages"
                     );
@@ -753,7 +904,6 @@ function Home() {
 
     const markAllNotificationsAsRead =
         async () => {
-
             if (
                 !user?.id ||
                 unreadCount === 0
@@ -772,12 +922,12 @@ function Home() {
             );
 
             setUnreadCount(0);
+
             setHideNotificationBadge(
                 true
             );
 
             try {
-
                 const response =
                     await fetch(
                         `http://localhost/it-connect-php/notifications/read-all.php?user_id=${user.id}`,
@@ -794,9 +944,7 @@ function Home() {
                         data.message
                     );
                 }
-
             } catch (error) {
-
                 console.log(
                     "Lỗi đánh dấu tất cả:",
                     error
@@ -810,9 +958,7 @@ function Home() {
 
     const getNotificationIcon =
         (type) => {
-
             switch (type) {
-
                 case "friend_request":
                     return "👥";
 
@@ -833,7 +979,6 @@ function Home() {
 
     const formatNotificationTime =
         (createdAt) => {
-
             if (!createdAt) {
                 return "";
             }
@@ -890,7 +1035,6 @@ function Home() {
     // =====================================================
 
     useEffect(() => {
-
         fetchPosts();
         fetchFriends();
         fetchNotifications();
@@ -908,7 +1052,6 @@ function Home() {
                 notificationInterval
             );
         };
-
     }, []);
 
     // =====================================================
@@ -916,9 +1059,7 @@ function Home() {
     // =====================================================
 
     const handlePost = async () => {
-
         if (!user) {
-
             setMessage(
                 "Bạn chưa đăng nhập!"
             );
@@ -930,7 +1071,6 @@ function Home() {
             !content.trim() &&
             !selectedFile
         ) {
-
             setMessage(
                 "Hãy nhập nội dung hoặc chọn hình ảnh, video, tệp!"
             );
@@ -939,14 +1079,9 @@ function Home() {
         }
 
         try {
-
             setMessage(
                 "Đang đăng bài..."
             );
-
-            // ============================================
-            // FORMDATA
-            // ============================================
 
             const formData =
                 new FormData();
@@ -962,7 +1097,6 @@ function Home() {
             );
 
             if (selectedFile) {
-
                 formData.append(
                     "media",
                     selectedFile
@@ -982,7 +1116,6 @@ function Home() {
                 await response.json();
 
             if (!response.ok) {
-
                 setMessage(
                     data.message ||
                     "Không thể đăng bài!"
@@ -995,18 +1128,12 @@ function Home() {
                 "Đăng bài thành công!"
             );
 
-            // ============================================
-            // RESET
-            // ============================================
-
             setContent("");
 
             handleRemoveFile();
 
             fetchPosts();
-
         } catch (error) {
-
             console.log(
                 "Lỗi đăng bài:",
                 error
@@ -1025,13 +1152,11 @@ function Home() {
     const handleLike = async (
         postId
     ) => {
-
         if (!user) {
             return;
         }
 
         try {
-
             const response =
                 await fetch(
                     `http://localhost/it-connect-php/posts/likes.php?post_id=${postId}`,
@@ -1065,7 +1190,6 @@ function Home() {
                 (currentPosts) =>
                     currentPosts.map(
                         (post) => {
-
                             if (
                                 post.id !==
                                 postId
@@ -1097,9 +1221,7 @@ function Home() {
                         }
                     )
             );
-
         } catch (error) {
-
             console.log(
                 "Lỗi Like:",
                 error
@@ -1115,7 +1237,6 @@ function Home() {
         async (
             postId
         ) => {
-
             setLoadingComments(
                 (current) => ({
                     ...current,
@@ -1124,7 +1245,6 @@ function Home() {
             );
 
             try {
-
                 const response =
                     await fetch(
                         `http://localhost/it-connect-php/posts/comments.php?post_id=${postId}`
@@ -1148,16 +1268,12 @@ function Home() {
                             data
                     })
                 );
-
             } catch (error) {
-
                 console.log(
                     "Lỗi lấy bình luận:",
                     error
                 );
-
             } finally {
-
                 setLoadingComments(
                     (current) => ({
                         ...current,
@@ -1175,7 +1291,6 @@ function Home() {
         (
             postId
         ) => {
-
             const isOpen =
                 openComments[
                     postId
@@ -1205,7 +1320,6 @@ function Home() {
             postId,
             value
         ) => {
-
             setCommentInputs(
                 (current) => ({
                     ...current,
@@ -1223,7 +1337,6 @@ function Home() {
         async (
             postId
         ) => {
-
             if (!user) {
                 return;
             }
@@ -1240,7 +1353,6 @@ function Home() {
             }
 
             try {
-
                 const response =
                     await fetch(
                         `http://localhost/it-connect-php/posts/comments.php?post_id=${postId}`,
@@ -1310,7 +1422,6 @@ function Home() {
                     (currentPosts) =>
                         currentPosts.map(
                             (post) => {
-
                                 if (
                                     post.id !==
                                     postId
@@ -1331,9 +1442,7 @@ function Home() {
                             }
                         )
                 );
-
             } catch (error) {
-
                 console.log(
                     "Lỗi gửi bình luận:",
                     error
@@ -1361,14 +1470,7 @@ function Home() {
                     🎓 IT CONNECT
                 </Link>
 
-                <div className="search">
-                    🔍
-
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm..."
-                    />
-                </div>
+                
 
                 <div className="header-right">
 
@@ -1769,9 +1871,7 @@ function Home() {
 
                         </div>
 
-                        {/* =========================
-                            PREVIEW FILE
-                        ========================= */}
+                        {/* PREVIEW FILE */}
 
                         {selectedFile && (
 
@@ -1857,9 +1957,7 @@ function Home() {
                             </div>
                         )}
 
-                        {/* =========================
-                            INPUT ẨN
-                        ========================= */}
+                        {/* INPUT ẨN */}
 
                         <input
                             ref={
@@ -1906,9 +2004,7 @@ function Home() {
                             }
                         />
 
-                        {/* =========================
-                            ACTIONS
-                        ========================= */}
+                        {/* ACTIONS */}
 
                         <div className="post-actions">
 
@@ -1987,6 +2083,7 @@ function Home() {
 
                                     <section
                                         className="post"
+                                        id={`post-${post.id}`}
                                         key={
                                             post.id
                                         }
@@ -2069,9 +2166,7 @@ function Home() {
                                             )
                                         }
 
-                                        {/* =========================
-                                            MEDIA BÀI VIẾT
-                                        ========================= */}
+                                        {/* MEDIA */}
 
                                         {
                                             post.media_type ===
@@ -2231,7 +2326,12 @@ function Home() {
                                                 💬 Bình luận
                                             </button>
 
-                                            <button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleOpenShare(post)
+                                                }
+                                            >
                                                 ↗ Chia sẻ
                                             </button>
 
@@ -2482,11 +2582,13 @@ function Home() {
 
                                 friends.map(
                                     (friend) => (
-
                                         <div
                                             className="friend"
-                                            key={
-                                                friend.id
+                                            key={friend.id}
+                                            onClick={() =>
+                                                handleOpenChat(
+                                                    friend
+                                                )
                                             }
                                         >
 
@@ -2521,12 +2623,7 @@ function Home() {
 
                                             <div className="friend-info">
 
-                                                <strong
-                                                    className="friend-name"
-                                                    onClick={() =>
-                                                        handleOpenChat(friend)
-                                                    }
-                                                >
+                                                <strong className="friend-name">
                                                     {
                                                         friend.name
                                                     }
@@ -2559,9 +2656,242 @@ function Home() {
 
                 </aside>
 
-                {/* =========================
+                {/* =====================================================
+                    POPUP CHIA SẺ
+                ===================================================== */}
+
+                {
+                    sharePost && (
+
+                        <div
+                            className="share-overlay"
+                            onClick={
+                                handleCloseShare
+                            }
+                        >
+
+                            <div
+                                className="share-popup"
+                                onClick={(event) =>
+                                    event.stopPropagation()
+                                }
+                            >
+
+                                <div className="share-popup-header">
+
+                                    <strong>
+                                        Chia sẻ bài viết
+                                    </strong>
+
+                                    <button
+                                        type="button"
+                                        className="share-close"
+                                        onClick={
+                                            handleCloseShare
+                                        }
+                                    >
+                                        ×
+                                    </button>
+
+                                </div>
+
+                                <div className="share-post-preview">
+
+                                    <strong>
+                                        {
+                                            sharePost.name ||
+                                            sharePost.user_name ||
+                                            "Bài viết"
+                                        }
+                                    </strong>
+
+                                    <p>
+                                        {
+                                            sharePost.content?.trim() ||
+                                            "Bài viết có tệp đính kèm"
+                                        }
+                                    </p>
+
+                                </div>
+
+                                <div className="share-search">
+
+                                    <input
+                                        type="text"
+                                        value={
+                                            shareSearch
+                                        }
+                                        onChange={(event) =>
+                                            setShareSearch(
+                                                event.target.value
+                                            )
+                                        }
+                                        placeholder="Tìm bạn bè..."
+                                    />
+
+                                </div>
+
+                                <div className="share-friends-list">
+
+                                    {
+                                        friends.filter(
+                                            (friend) =>
+                                                (
+                                                    friend.name ||
+                                                    ""
+                                                )
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        shareSearch
+                                                            .trim()
+                                                            .toLowerCase()
+                                                    )
+                                        ).length ===
+                                        0 ? (
+
+                                            <div className="share-empty">
+                                                Không tìm thấy bạn bè.
+                                            </div>
+
+                                        ) : (
+
+                                            friends
+                                                .filter(
+                                                    (friend) =>
+                                                        (
+                                                            friend.name ||
+                                                            ""
+                                                        )
+                                                            .toLowerCase()
+                                                            .includes(
+                                                                shareSearch
+                                                                    .trim()
+                                                                    .toLowerCase()
+                                                            )
+                                                )
+                                                .map(
+                                                    (friend) => (
+
+                                                        <div
+                                                            className="share-friend"
+                                                            key={
+                                                                friend.id
+                                                            }
+                                                        >
+
+                                                            <div className="share-friend-info">
+
+                                                                <div className="avatar small">
+
+                                                                    {
+                                                                        friend.avatar ? (
+
+                                                                            <img
+                                                                                src={
+                                                                                    getAvatarUrl(
+                                                                                        friend.avatar
+                                                                                    )
+                                                                                }
+                                                                                alt={
+                                                                                    friend.name
+                                                                                }
+                                                                                className="avatar-image"
+                                                                            />
+
+                                                                        ) : (
+
+                                                                            friend.name
+                                                                                ? friend.name
+                                                                                    .charAt(
+                                                                                        0
+                                                                                    )
+                                                                                    .toUpperCase()
+                                                                                : "?"
+                                                                        )
+                                                                    }
+
+                                                                </div>
+
+                                                                <div className="share-friend-text">
+
+                                                                    <strong>
+                                                                        {
+                                                                            friend.name
+                                                                        }
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            friend.class ||
+                                                                            "Bạn bè"
+                                                                        }
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    sharedFriendIds[
+                                                                        String(
+                                                                            friend.id
+                                                                        )
+                                                                    ]
+                                                                        ? "share-sent-btn"
+                                                                        : "share-send-btn"
+                                                                }
+                                                                disabled={
+                                                                    sharingFriendId ===
+                                                                        friend.id ||
+                                                                    !!sharedFriendIds[
+                                                                        String(
+                                                                            friend.id
+                                                                        )
+                                                                    ]
+                                                                }
+                                                                onClick={() =>
+                                                                    handleShareToFriend(
+                                                                        friend
+                                                                    )
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    sharingFriendId ===
+                                                                    friend.id
+                                                                        ? "Đang gửi..."
+                                                                        : sharedFriendIds[
+                                                                              String(
+                                                                                  friend.id
+                                                                              )
+                                                                          ]
+                                                                        ? "Đã gửi"
+                                                                        : "Gửi"
+                                                                }
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    )
+                                                )
+
+                                        )
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    )
+                }
+
+                {/* =====================================================
                     CHAT POPUP
-                ========================= */}
+                ===================================================== */}
 
                 {
                     selectedFriend && (
@@ -2594,7 +2924,9 @@ function Home() {
 
                                             selectedFriend.name
                                                 ? selectedFriend.name
-                                                    .charAt(0)
+                                                    .charAt(
+                                                        0
+                                                    )
                                                     .toUpperCase()
                                                 : "?"
                                         )}
@@ -2652,6 +2984,40 @@ function Home() {
                                                         user.id
                                                     );
 
+                                                const messageContent =
+                                                    msg.content || "";
+
+                                                /*
+                                                 * Tìm ID bài viết được chia sẻ.
+                                                 *
+                                                 * Ví dụ:
+                                                 * [[IT_CONNECT_POST:25]]
+                                                 */
+
+                                                const sharedPostMatch =
+                                                    messageContent.match(
+                                                        /\[\[IT_CONNECT_POST:(\d+)\]\]/
+                                                    );
+
+                                                const sharedPostId =
+                                                    sharedPostMatch
+                                                        ? sharedPostMatch[1]
+                                                        : null;
+
+                                                /*
+                                                 * Xóa marker khỏi phần text
+                                                 */
+
+                                                const displayContent =
+                                                    sharedPostId
+                                                        ? messageContent
+                                                            .replace(
+                                                                /\[\[IT_CONNECT_POST:\d+\]\]/,
+                                                                ""
+                                                            )
+                                                            .trim()
+                                                        : messageContent;
+
                                                 return (
 
                                                     <div
@@ -2668,13 +3034,36 @@ function Home() {
                                                     >
 
                                                         <div className="chat-message">
+
+                                                            <div className="chat-message-text">
+
+                                                                {
+                                                                    displayContent
+                                                                }
+
+                                                            </div>
+
                                                             {
-                                                                msg.content
+                                                                sharedPostId && (
+
+                                                                    <a
+                                                                        href={`/home?post=${sharedPostId}`}
+                                                                        className="shared-post-link"
+                                                                        onClick={() =>
+                                                                            handleViewSharedPost(
+                                                                                sharedPostId
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        🔗 Xem bài viết
+                                                                    </a>
+
+                                                                )
                                                             }
+
                                                         </div>
 
                                                     </div>
-
                                                 );
                                             }
                                         )
