@@ -6,24 +6,18 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
+  http_response_code(200);
+  exit();
 }
 
 require_once "../config/database.php";
 
-
-// ======================================================
 // GET - LẤY DANH SÁCH BÀI VIẾT
-// ======================================================
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
+  $userId = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 
-    $userId = isset($_GET["user_id"])
-        ? intval($_GET["user_id"])
-        : 0;
-
-    $sql = "
+  $sql = "
         SELECT
             p.id,
             p.user_id,
@@ -63,338 +57,193 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         ORDER BY p.created_at DESC
     ";
 
-    $stmt = $conn->prepare($sql);
+  $stmt = $conn->prepare($sql);
 
-    if (!$stmt) {
-        http_response_code(500);
+  if (!$stmt) {
+    http_response_code(500);
 
-        echo json_encode([
-            "message" => "Không thể lấy bài viết!"
-        ]);
+    echo json_encode([
+      "message" => "Không thể lấy bài viết!",
+    ]);
 
-        exit;
-    }
+    exit();
+  }
 
-    $stmt->bind_param("i", $userId);
+  $stmt->bind_param("i", $userId);
 
-    $stmt->execute();
+  $stmt->execute();
 
-    $result = $stmt->get_result();
+  $result = $stmt->get_result();
 
-    $posts = [];
+  $posts = [];
 
-    while ($row = $result->fetch_assoc()) {
+  while ($row = $result->fetch_assoc()) {
+    $row["like_count"] = intval($row["like_count"]);
+    $row["comment_count"] = intval($row["comment_count"]);
+    $row["liked"] = intval($row["liked"]);
 
-        $row["like_count"] = intval($row["like_count"]);
-        $row["comment_count"] = intval($row["comment_count"]);
-        $row["liked"] = intval($row["liked"]);
+    $posts[] = $row;
+  }
 
-        $posts[] = $row;
-    }
+  echo json_encode($posts);
 
-    echo json_encode($posts);
+  $stmt->close();
+  $conn->close();
 
-    $stmt->close();
-    $conn->close();
-
-    exit;
+  exit();
 }
 
-
-// ======================================================
 // POST - ĐĂNG BÀI
 // Hỗ trợ:
 // - Văn bản
 // - Hình ảnh
 // - Video
 // - Tệp
-// ======================================================
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $userId = intval($_POST["user_id"] ?? 0);
+  $content = trim($_POST["content"] ?? "");
 
-    $userId = intval($_POST["user_id"] ?? 0);
-    $content = trim($_POST["content"] ?? "");
+  if (!$userId) {
+    http_response_code(400);
 
-    if (!$userId) {
+    echo json_encode([
+      "message" => "Không xác định được người dùng!",
+    ]);
 
-        http_response_code(400);
+    exit();
+  }
 
-        echo json_encode([
-            "message" => "Không xác định được người dùng!"
-        ]);
+  // KIỂM TRA FILE
 
-        exit;
+  $hasFile = isset($_FILES["media"]) && $_FILES["media"]["error"] !== UPLOAD_ERR_NO_FILE;
+
+  // Không có nội dung và cũng không có file
+  if ($content === "" && !$hasFile) {
+    http_response_code(400);
+
+    echo json_encode([
+      "message" => "Hãy nhập nội dung hoặc chọn hình ảnh, video, tệp!",
+    ]);
+
+    exit();
+  }
+
+  $image = null;
+  $file = null;
+  $mediaType = null;
+
+  // UPLOAD FILE
+
+  if ($hasFile) {
+    if ($_FILES["media"]["error"] !== UPLOAD_ERR_OK) {
+      http_response_code(400);
+
+      echo json_encode([
+        "message" => "File tải lên bị lỗi!",
+      ]);
+
+      exit();
     }
 
+    $originalName = $_FILES["media"]["name"];
 
-    // ==================================================
-    // KIỂM TRA FILE
-    // ==================================================
+    $tmpName = $_FILES["media"]["tmp_name"];
 
-    $hasFile = isset($_FILES["media"])
-        && $_FILES["media"]["error"] !== UPLOAD_ERR_NO_FILE;
+    $fileSize = $_FILES["media"]["size"];
 
+    // GIỚI HẠN 100MB
 
-    // Không có nội dung và cũng không có file
-    if ($content === "" && !$hasFile) {
+    $maxSize = 100 * 1024 * 1024;
 
-        http_response_code(400);
+    if ($fileSize > $maxSize) {
+      http_response_code(400);
 
-        echo json_encode([
-            "message" => "Hãy nhập nội dung hoặc chọn hình ảnh, video, tệp!"
-        ]);
+      echo json_encode([
+        "message" => "File không được lớn hơn 100MB!",
+      ]);
 
-        exit;
+      exit();
     }
 
+    // LẤY PHẦN MỞ RỘNG
 
-    $image = null;
-    $file = null;
-    $mediaType = null;
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
+    // KIỂM TRA MIME
 
-    // ==================================================
-    // UPLOAD FILE
-    // ==================================================
+    $mimeType = mime_content_type($tmpName);
 
-    if ($hasFile) {
+    // HÌNH ẢNH
 
-        if ($_FILES["media"]["error"] !== UPLOAD_ERR_OK) {
+    $imageExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
 
-            http_response_code(400);
+    // VIDEO
 
-            echo json_encode([
-                "message" => "File tải lên bị lỗi!"
-            ]);
+    $videoExtensions = ["mp4", "webm", "mov", "avi", "mkv"];
 
-            exit;
-        }
+    // TỆP
 
+    $fileExtensions = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "zip", "rar", "7z"];
 
-        $originalName =
-            $_FILES["media"]["name"];
+    // XÁC ĐỊNH LOẠI
 
-        $tmpName =
-            $_FILES["media"]["tmp_name"];
+    if (in_array($extension, $imageExtensions)) {
+      $mediaType = "image";
+    } elseif (in_array($extension, $videoExtensions)) {
+      $mediaType = "video";
+    } elseif (in_array($extension, $fileExtensions)) {
+      $mediaType = "file";
+    } else {
+      http_response_code(400);
 
-        $fileSize =
-            $_FILES["media"]["size"];
+      echo json_encode([
+        "message" => "Loại file này chưa được hỗ trợ!",
+      ]);
 
-
-        // ==============================================
-        // GIỚI HẠN 100MB
-        // ==============================================
-
-        $maxSize = 100 * 1024 * 1024;
-
-        if ($fileSize > $maxSize) {
-
-            http_response_code(400);
-
-            echo json_encode([
-                "message" => "File không được lớn hơn 100MB!"
-            ]);
-
-            exit;
-        }
-
-
-        // ==============================================
-        // LẤY PHẦN MỞ RỘNG
-        // ==============================================
-
-        $extension =
-            strtolower(
-                pathinfo(
-                    $originalName,
-                    PATHINFO_EXTENSION
-                )
-            );
-
-
-        // ==============================================
-        // KIỂM TRA MIME
-        // ==============================================
-
-        $mimeType =
-            mime_content_type($tmpName);
-
-
-        // ==============================================
-        // HÌNH ẢNH
-        // ==============================================
-
-        $imageExtensions = [
-            "jpg",
-            "jpeg",
-            "png",
-            "gif",
-            "webp"
-        ];
-
-
-        // ==============================================
-        // VIDEO
-        // ==============================================
-
-        $videoExtensions = [
-            "mp4",
-            "webm",
-            "mov",
-            "avi",
-            "mkv"
-        ];
-
-
-        // ==============================================
-        // TỆP
-        // ==============================================
-
-        $fileExtensions = [
-            "pdf",
-            "doc",
-            "docx",
-            "xls",
-            "xlsx",
-            "ppt",
-            "pptx",
-            "txt",
-            "zip",
-            "rar",
-            "7z"
-        ];
-
-
-        // ==============================================
-        // XÁC ĐỊNH LOẠI
-        // ==============================================
-
-        if (
-            in_array(
-                $extension,
-                $imageExtensions
-            )
-        ) {
-
-            $mediaType = "image";
-
-        } elseif (
-            in_array(
-                $extension,
-                $videoExtensions
-            )
-        ) {
-
-            $mediaType = "video";
-
-        } elseif (
-            in_array(
-                $extension,
-                $fileExtensions
-            )
-        ) {
-
-            $mediaType = "file";
-
-        } else {
-
-            http_response_code(400);
-
-            echo json_encode([
-                "message" =>
-                    "Loại file này chưa được hỗ trợ!"
-            ]);
-
-            exit;
-        }
-
-
-        // ==============================================
-        // THƯ MỤC UPLOAD
-        // ==============================================
-
-        $uploadDir =
-            __DIR__ .
-            "/../uploads/posts/";
-
-
-        if (!is_dir($uploadDir)) {
-
-            mkdir(
-                $uploadDir,
-                0777,
-                true
-            );
-        }
-
-
-        // ==============================================
-        // TẠO TÊN FILE MỚI
-        // ==============================================
-
-        $newFileName =
-            uniqid(
-                "post_",
-                true
-            )
-            . "_"
-            . time()
-            . "."
-            . $extension;
-
-
-        $destination =
-            $uploadDir .
-            $newFileName;
-
-
-        // ==============================================
-        // DI CHUYỂN FILE
-        // ==============================================
-
-        if (
-            !move_uploaded_file(
-                $tmpName,
-                $destination
-            )
-        ) {
-
-            http_response_code(500);
-
-            echo json_encode([
-                "message" =>
-                    "Không thể lưu file lên server!"
-            ]);
-
-            exit;
-        }
-
-
-        // ==============================================
-        // ĐƯỜNG DẪN LƯU DATABASE
-        // ==============================================
-
-        $relativePath =
-            "uploads/posts/" .
-            $newFileName;
-
-
-        if ($mediaType === "image") {
-
-            $image = $relativePath;
-
-        } else {
-
-            $file = $relativePath;
-        }
+      exit();
     }
 
+    // THƯ MỤC UPLOAD
 
-    // ==================================================
-    // INSERT DATABASE
-    // ==================================================
+    $uploadDir = __DIR__ . "/../uploads/posts/";
 
-    $sql = "
+    if (!is_dir($uploadDir)) {
+      mkdir($uploadDir, 0777, true);
+    }
+
+    // TẠO TÊN FILE MỚI
+
+    $newFileName = uniqid("post_", true) . "_" . time() . "." . $extension;
+
+    $destination = $uploadDir . $newFileName;
+
+    // DI CHUYỂN FILE
+
+    if (!move_uploaded_file($tmpName, $destination)) {
+      http_response_code(500);
+
+      echo json_encode([
+        "message" => "Không thể lưu file lên server!",
+      ]);
+
+      exit();
+    }
+
+    // ĐƯỜNG DẪN LƯU DATABASE
+
+    $relativePath = "uploads/posts/" . $newFileName;
+
+    if ($mediaType === "image") {
+      $image = $relativePath;
+    } else {
+      $file = $relativePath;
+    }
+  }
+
+  // INSERT DATABASE
+
+  $sql = "
         INSERT INTO posts
         (
             user_id,
@@ -406,82 +255,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         VALUES (?, ?, ?, ?, ?)
     ";
 
+  $stmt = $conn->prepare($sql);
 
-    $stmt =
-        $conn->prepare($sql);
+  if (!$stmt) {
+    http_response_code(500);
 
+    echo json_encode([
+      "message" => "Không thể tạo bài viết!",
+    ]);
 
-    if (!$stmt) {
+    exit();
+  }
 
-        http_response_code(500);
+  $stmt->bind_param("issss", $userId, $content, $image, $file, $mediaType);
 
-        echo json_encode([
-            "message" =>
-                "Không thể tạo bài viết!"
-        ]);
+  if ($stmt->execute()) {
+    http_response_code(201);
 
-        exit;
-    }
+    echo json_encode([
+      "message" => "Đăng bài thành công!",
 
+      "postId" => $stmt->insert_id,
 
-    $stmt->bind_param(
-        "issss",
-        $userId,
-        $content,
-        $image,
-        $file,
-        $mediaType
-    );
+      "media_type" => $mediaType,
 
+      "file" => $file,
 
-    if ($stmt->execute()) {
+      "image" => $image,
+    ]);
+  } else {
+    http_response_code(500);
 
-        http_response_code(201);
+    echo json_encode([
+      "message" => "Không thể đăng bài!",
+    ]);
+  }
 
-        echo json_encode([
-            "message" =>
-                "Đăng bài thành công!",
+  $stmt->close();
+  $conn->close();
 
-            "postId" =>
-                $stmt->insert_id,
-
-            "media_type" =>
-                $mediaType,
-
-            "file" =>
-                $file,
-
-            "image" =>
-                $image
-        ]);
-
-    } else {
-
-        http_response_code(500);
-
-        echo json_encode([
-            "message" =>
-                "Không thể đăng bài!"
-        ]);
-    }
-
-
-    $stmt->close();
-    $conn->close();
-
-    exit;
+  exit();
 }
 
-
-// ======================================================
 // METHOD KHÔNG HỖ TRỢ
-// ======================================================
 
 http_response_code(405);
 
 echo json_encode([
-    "message" =>
-        "Method không được hỗ trợ!"
+  "message" => "Method không được hỗ trợ!",
 ]);
 
 $conn->close();

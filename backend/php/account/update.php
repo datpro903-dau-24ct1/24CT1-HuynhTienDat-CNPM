@@ -6,96 +6,53 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
+  http_response_code(200);
+  exit();
 }
 
 require_once "../config/database.php";
 
+/* NHẬN DỮ LIỆU */
 
-/* =========================
-   NHẬN DỮ LIỆU
-========================= */
+$data = json_decode(file_get_contents("php://input"), true);
 
-$data = json_decode(
-    file_get_contents("php://input"),
-    true
-);
+$id = intval($data["id"] ?? 0);
 
+$name = trim($data["name"] ?? "");
 
-$id = intval(
-    $data["id"] ?? 0
-);
+$email = trim($data["email"] ?? "");
 
-$name = trim(
-    $data["name"] ?? ""
-);
+$student_code = trim($data["student_code"] ?? "");
 
-$email = trim(
-    $data["email"] ?? ""
-);
+$class = trim($data["class"] ?? "");
 
-$student_code = trim(
-    $data["student_code"] ?? ""
-);
+$date_of_birth = trim($data["date_of_birth"] ?? "");
 
-$class = trim(
-    $data["class"] ?? ""
-);
+/* KIỂM TRA */
 
-$date_of_birth = trim(
-    $data["date_of_birth"] ?? ""
-);
+if (!$id || empty($name) || empty($email) || empty($student_code) || empty($class) || empty($date_of_birth)) {
+  http_response_code(400);
 
+  echo json_encode([
+    "message" => "Vui lòng nhập đầy đủ thông tin!",
+  ]);
 
-/* =========================
-   KIỂM TRA
-========================= */
-
-if (
-    !$id ||
-    empty($name) ||
-    empty($email) ||
-    empty($student_code) ||
-    empty($class) ||
-    empty($date_of_birth)
-) {
-
-    http_response_code(400);
-
-    echo json_encode([
-        "message" => "Vui lòng nhập đầy đủ thông tin!"
-    ]);
-
-    exit;
+  exit();
 }
 
+/* KIỂM TRA EMAIL */
 
-/* =========================
-   KIỂM TRA EMAIL
-========================= */
+if (!preg_match('/^[^\s@]+@(gmail\.com|[a-zA-Z0-9-]+\.edu\.vn)$/i', $email)) {
+  http_response_code(400);
 
-if (
-    !preg_match(
-        '/^[^\s@]+@(gmail\.com|[a-zA-Z0-9-]+\.edu\.vn)$/i',
-        $email
-    )
-) {
+  echo json_encode([
+    "message" => "Email phải có đuôi @gmail.com hoặc tên miền .edu.vn!",
+  ]);
 
-    http_response_code(400);
-
-    echo json_encode([
-        "message" =>
-            "Email phải có đuôi @gmail.com hoặc tên miền .edu.vn!"
-    ]);
-
-    exit;
+  exit();
 }
 
-
-/* =========================
-   KIỂM TRA USER
-========================= */
+/* KIỂM TRA USER */
 
 $checkUserSql = "
     SELECT id
@@ -104,53 +61,40 @@ $checkUserSql = "
     LIMIT 1
 ";
 
-$checkUserStmt = $conn->prepare(
-    $checkUserSql
-);
+$checkUserStmt = $conn->prepare($checkUserSql);
 
 if (!$checkUserStmt) {
+  http_response_code(500);
 
-    http_response_code(500);
+  echo json_encode([
+    "message" => "Lỗi chuẩn bị truy vấn!",
+  ]);
 
-    echo json_encode([
-        "message" => "Lỗi chuẩn bị truy vấn!"
-    ]);
-
-    exit;
+  exit();
 }
 
-$checkUserStmt->bind_param(
-    "i",
-    $id
-);
+$checkUserStmt->bind_param("i", $id);
 
 $checkUserStmt->execute();
 
-$checkUserResult =
-    $checkUserStmt->get_result();
+$checkUserResult = $checkUserStmt->get_result();
 
-if (
-    $checkUserResult->num_rows === 0
-) {
+if ($checkUserResult->num_rows === 0) {
+  http_response_code(404);
 
-    http_response_code(404);
+  echo json_encode([
+    "message" => "Không tìm thấy người dùng!",
+  ]);
 
-    echo json_encode([
-        "message" => "Không tìm thấy người dùng!"
-    ]);
+  $checkUserStmt->close();
+  $conn->close();
 
-    $checkUserStmt->close();
-    $conn->close();
-
-    exit;
+  exit();
 }
 
 $checkUserStmt->close();
 
-
-/* =========================
-   KIỂM TRA EMAIL TRÙNG
-========================= */
+/* KIỂM TRA EMAIL TRÙNG */
 
 $checkEmailSql = "
     SELECT id
@@ -160,43 +104,30 @@ $checkEmailSql = "
     LIMIT 1
 ";
 
-$checkEmailStmt = $conn->prepare(
-    $checkEmailSql
-);
+$checkEmailStmt = $conn->prepare($checkEmailSql);
 
-$checkEmailStmt->bind_param(
-    "si",
-    $email,
-    $id
-);
+$checkEmailStmt->bind_param("si", $email, $id);
 
 $checkEmailStmt->execute();
 
-$checkEmailResult =
-    $checkEmailStmt->get_result();
+$checkEmailResult = $checkEmailStmt->get_result();
 
-if (
-    $checkEmailResult->num_rows > 0
-) {
+if ($checkEmailResult->num_rows > 0) {
+  http_response_code(400);
 
-    http_response_code(400);
+  echo json_encode([
+    "message" => "Email đã được sử dụng!",
+  ]);
 
-    echo json_encode([
-        "message" => "Email đã được sử dụng!"
-    ]);
+  $checkEmailStmt->close();
+  $conn->close();
 
-    $checkEmailStmt->close();
-    $conn->close();
-
-    exit;
+  exit();
 }
 
 $checkEmailStmt->close();
 
-
-/* =========================
-   KIỂM TRA MÃ SINH VIÊN TRÙNG
-========================= */
+/* KIỂM TRA MÃ SINH VIÊN TRÙNG */
 
 $checkStudentSql = "
     SELECT id
@@ -206,44 +137,30 @@ $checkStudentSql = "
     LIMIT 1
 ";
 
-$checkStudentStmt = $conn->prepare(
-    $checkStudentSql
-);
+$checkStudentStmt = $conn->prepare($checkStudentSql);
 
-$checkStudentStmt->bind_param(
-    "si",
-    $student_code,
-    $id
-);
+$checkStudentStmt->bind_param("si", $student_code, $id);
 
 $checkStudentStmt->execute();
 
-$checkStudentResult =
-    $checkStudentStmt->get_result();
+$checkStudentResult = $checkStudentStmt->get_result();
 
-if (
-    $checkStudentResult->num_rows > 0
-) {
+if ($checkStudentResult->num_rows > 0) {
+  http_response_code(400);
 
-    http_response_code(400);
+  echo json_encode([
+    "message" => "Mã sinh viên đã được sử dụng!",
+  ]);
 
-    echo json_encode([
-        "message" =>
-            "Mã sinh viên đã được sử dụng!"
-    ]);
+  $checkStudentStmt->close();
+  $conn->close();
 
-    $checkStudentStmt->close();
-    $conn->close();
-
-    exit;
+  exit();
 }
 
 $checkStudentStmt->close();
 
-
-/* =========================
-   CẬP NHẬT
-========================= */
+/* CẬP NHẬT */
 
 $sql = "
     UPDATE users
@@ -259,55 +176,34 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
+  http_response_code(500);
 
-    http_response_code(500);
+  echo json_encode([
+    "message" => "Không thể cập nhật thông tin!",
+  ]);
 
-    echo json_encode([
-        "message" =>
-            "Không thể cập nhật thông tin!"
-    ]);
+  $conn->close();
 
-    $conn->close();
-
-    exit;
+  exit();
 }
 
+$stmt->bind_param("sssssi", $name, $email, $student_code, $class, $date_of_birth, $id);
 
-$stmt->bind_param(
-    "sssssi",
-    $name,
-    $email,
-    $student_code,
-    $class,
-    $date_of_birth,
-    $id
-);
-
-
-/* =========================
-   THỰC HIỆN
-========================= */
+/* THỰC HIỆN */
 
 if ($stmt->execute()) {
+  http_response_code(200);
 
-    http_response_code(200);
-
-    echo json_encode([
-        "message" =>
-            "Cập nhật thông tin thành công!"
-    ]);
-
+  echo json_encode([
+    "message" => "Cập nhật thông tin thành công!",
+  ]);
 } else {
+  http_response_code(500);
 
-    http_response_code(500);
-
-    echo json_encode([
-        "message" =>
-            "Cập nhật thông tin thất bại!"
-    ]);
-
+  echo json_encode([
+    "message" => "Cập nhật thông tin thất bại!",
+  ]);
 }
-
 
 $stmt->close();
 $conn->close();

@@ -6,32 +6,25 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
+  http_response_code(200);
+  exit();
 }
 
 require_once "../config/database.php";
 
-$userId = isset($_GET["user_id"])
-    ? intval($_GET["user_id"])
-    : 0;
+$userId = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 
 if (!$userId) {
-    http_response_code(400);
+  http_response_code(400);
 
-    echo json_encode([
-        "message" => "Thiếu user_id!"
-    ]);
+  echo json_encode([
+    "message" => "Thiếu user_id!",
+  ]);
 
-    exit;
+  exit();
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| LẤY DANH SÁCH NGƯỜI DÙNG
-|--------------------------------------------------------------------------
-*/
+// LẤY DANH SÁCH NGƯỜI DÙNG
 
 $sql = "
     SELECT
@@ -44,11 +37,7 @@ $sql = "
 
         CASE
 
-            /*
-            |--------------------------------------------------------------------------
-            | 1. ĐANG CHỜ - MÌNH ĐÃ GỬI
-            |--------------------------------------------------------------------------
-            */
+            /* 1. ĐANG CHỜ - MÌNH ĐÃ GỬI */
 
             WHEN EXISTS (
                 SELECT 1
@@ -60,12 +49,7 @@ $sql = "
             )
             THEN 'pending_sent'
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | 2. ĐANG CHỜ - NGƯỜI KIA GỬI CHO MÌNH
-            |--------------------------------------------------------------------------
-            */
+            /* 2. ĐANG CHỜ - NGƯỜI KIA GỬI CHO MÌNH */
 
             WHEN EXISTS (
                 SELECT 1
@@ -77,12 +61,7 @@ $sql = "
             )
             THEN 'pending_received'
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | 3. ĐÃ LÀ BẠN BÈ
-            |--------------------------------------------------------------------------
-            */
+            /* 3. ĐÃ LÀ BẠN BÈ */
 
             WHEN EXISTS (
                 SELECT 1
@@ -101,12 +80,7 @@ $sql = "
             )
             THEN 'accepted'
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | 4. CHƯA CÓ QUAN HỆ
-            |--------------------------------------------------------------------------
-            */
+            /* 4. CHƯA CÓ QUAN HỆ */
 
             ELSE 'none'
 
@@ -119,74 +93,45 @@ $sql = "
     ORDER BY u.name ASC
 ";
 
-
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
+  http_response_code(500);
 
-    http_response_code(500);
+  echo json_encode([
+    "message" => "Không thể lấy danh sách người dùng!",
+    "error" => $conn->error,
+  ]);
 
-    echo json_encode([
-        "message" => "Không thể lấy danh sách người dùng!",
-        "error" => $conn->error
-    ]);
-
-    exit;
+  exit();
 }
 
+// BIND PARAM
 
-/*
-|--------------------------------------------------------------------------
-| BIND PARAM
-|--------------------------------------------------------------------------
-*/
+$stmt->bind_param("iiiii", $userId, $userId, $userId, $userId, $userId);
 
-$stmt->bind_param(
-    "iiiii",
-    $userId,
-    $userId,
-    $userId,
-    $userId,
-    $userId
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| EXECUTE
-|--------------------------------------------------------------------------
-*/
+// EXECUTE
 
 if (!$stmt->execute()) {
+  http_response_code(500);
 
-    http_response_code(500);
+  echo json_encode([
+    "message" => "Không thể lấy danh sách người dùng!",
+    "error" => $stmt->error,
+  ]);
 
-    echo json_encode([
-        "message" => "Không thể lấy danh sách người dùng!",
-        "error" => $stmt->error
-    ]);
-
-    exit;
+  exit();
 }
-
 
 $result = $stmt->get_result();
 
 $users = [];
 
-
 while ($row = $result->fetch_assoc()) {
-
-    $users[] = $row;
-
+  $users[] = $row;
 }
 
-
-echo json_encode(
-    $users,
-    JSON_UNESCAPED_UNICODE
-);
-
+echo json_encode($users, JSON_UNESCAPED_UNICODE);
 
 $stmt->close();
 

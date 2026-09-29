@@ -6,22 +6,20 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
+  http_response_code(200);
+  exit();
 }
 
 require_once "../config/database.php";
 
-$userId = isset($_GET["user_id"])
-    ? intval($_GET["user_id"])
-    : 0;
+$userId = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 
 if (!$userId) {
-    http_response_code(400);
-    echo json_encode([
-        "message" => "Thiếu user_id!"
-    ]);
-    exit;
+  http_response_code(400);
+  echo json_encode([
+    "message" => "Thiếu user_id!",
+  ]);
+  exit();
 }
 
 $sql = "
@@ -56,19 +54,14 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    http_response_code(500);
-    echo json_encode([
-        "message" => "Không thể lấy danh sách bạn bè!"
-    ]);
-    exit;
+  http_response_code(500);
+  echo json_encode([
+    "message" => "Không thể lấy danh sách bạn bè!",
+  ]);
+  exit();
 }
 
-$stmt->bind_param(
-    "iii",
-    $userId,
-    $userId,
-    $userId
-);
+$stmt->bind_param("iii", $userId, $userId, $userId);
 
 $stmt->execute();
 
@@ -77,7 +70,7 @@ $result = $stmt->get_result();
 $friends = [];
 
 while ($row = $result->fetch_assoc()) {
-    $friends[] = $row;
+  $friends[] = $row;
 }
 
 echo json_encode($friends);

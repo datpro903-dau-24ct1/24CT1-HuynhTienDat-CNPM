@@ -1,9 +1,4 @@
-﻿import {
-    BrowserRouter,
-    Routes,
-    Route,
-    Navigate
-} from "react-router-dom";
+﻿import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -14,162 +9,85 @@ import Friends from "./pages/Friends";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 
-
 function App() {
+  const user = localStorage.getItem("user");
 
-    const user = localStorage.getItem("user");
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* TRANG CHỦ */}
 
+        <Route path="/" element={user ? <Navigate to="/home" replace /> : <Login />} />
 
-    return (
+        {/* ĐĂNG NHẬP */}
 
-        <BrowserRouter>
+        <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
 
-            <Routes>
+        {/* ĐĂNG KÝ */}
 
+        <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
 
-                {/* =========================
-                    TRANG CHỦ
-                ========================= */}
+        {/* HOME */}
 
-                <Route
-                    path="/"
-                    element={
-                        user
-                            ? <Navigate
-                                to="/home"
-                                replace
-                            />
-                            : <Login />
-                    }
-                />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
+        {/* BẠN BÈ */}
 
-                {/* =========================
-                    ĐĂNG NHẬP
-                ========================= */}
+        <Route
+          path="/friends"
+          element={
+            <ProtectedRoute>
+              <Friends />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route
-                    path="/login"
-                    element={
-                        user
-                            ? <Navigate
-                                to="/home"
-                                replace
-                            />
-                            : <Login />
-                    }
-                />
+        {/* TIN NHẮN */}
 
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          }
+        />
 
-                {/* =========================
-                    ĐĂNG KÝ
-                ========================= */}
+        {/* TÀI KHOẢN */}
 
-                <Route
-                    path="/register"
-                    element={
-                        user
-                            ? <Navigate
-                                to="/home"
-                                replace
-                            />
-                            : <Register />
-                    }
-                />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          }
+        />
 
+        {/* THÔNG BÁO */}
 
-                {/* =========================
-                    HOME
-                ========================= */}
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route
-                    path="/home"
-                    element={
-                        <ProtectedRoute>
-                            <Home />
-                        </ProtectedRoute>
-                    }
-                />
+        {/* ĐƯỜNG DẪN KHÔNG TỒN TẠI */}
 
-
-                {/* =========================
-                    BẠN BÈ
-                ========================= */}
-
-                <Route
-                    path="/friends"
-                    element={
-                        <ProtectedRoute>
-                            <Friends />
-                        </ProtectedRoute>
-                    }
-                />
-
-
-                {/* =========================
-                    TIN NHẮN
-                ========================= */}
-
-                <Route
-                    path="/messages"
-                    element={
-                        <ProtectedRoute>
-                            <Messages />
-                        </ProtectedRoute>
-                    }
-                />
-
-
-                {/* =========================
-                    TÀI KHOẢN
-                ========================= */}
-
-                <Route
-                    path="/account"
-                    element={
-                        <ProtectedRoute>
-                            <Account />
-                        </ProtectedRoute>
-                    }
-                />
-
-
-                {/* =========================
-                    THÔNG BÁO
-                ========================= */}
-
-                <Route
-                    path="/notifications"
-                    element={
-                        <ProtectedRoute>
-                            <Notifications />
-                        </ProtectedRoute>
-                    }
-                />
-
-
-                {/* =========================
-                    ĐƯỜNG DẪN KHÔNG TỒN TẠI
-                ========================= */}
-
-                <Route
-                    path="*"
-                    element={
-                        <Navigate
-                            to="/"
-                            replace
-                        />
-                    }
-                />
-
-
-            </Routes>
-
-        </BrowserRouter>
-
-    );
-
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
 
 export default App;
