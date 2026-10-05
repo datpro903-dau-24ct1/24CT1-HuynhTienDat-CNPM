@@ -3063,3 +3063,74 @@ body {
       none;
   }
 }
+
+/* SỬA / XÓA BÀI VIẾT VÀ BÌNH LUẬN */
+
+.post {
+  position: relative;
+}
+
+.post-owner-actions {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.post-owner-actions button,
+.post-edit-actions button,
+.comment-delete {
+  padding: 5px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  background: #f7fafc;
+  color: #2d3748;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.post-owner-actions button:hover,
+.post-edit-actions button:hover {
+  background: #edf2f7;
+}
+
+.post-owner-actions .danger,
+.comment-delete {
+  color: #c53030;
+  border-color: #feb2b2;
+  background: #fff5f5;
+}
+
+.comment-delete {
+  margin-left: 10px;
+  padding: 1px 8px;
+  font-size: 12px;
+}
+
+.post-edit {
+  margin: 12px 0;
+}
+
+.post-edit textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.post-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.post-edit-actions button:first-child {
+  border-color: #2b6cb0;
+  background: #2b6cb0;
+  color: white;
+}

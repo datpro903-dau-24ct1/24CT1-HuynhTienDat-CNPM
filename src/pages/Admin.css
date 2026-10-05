@@ -1,0 +1,154 @@
+.admin-page {
+  min-height: 100vh;
+  background: #f1f5f9;
+  font-family: Arial, sans-serif;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 32px;
+  background: #12355b;
+  color: white;
+}
+
+.admin-header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.admin-header span {
+  color: #bee3f8;
+  font-size: 14px;
+}
+
+.admin-logout {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.admin-logout:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.admin-main {
+  max-width: 900px;
+  margin: 28px auto;
+  padding: 0 16px;
+}
+
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar h2 {
+  margin: 0;
+  color: #12355b;
+}
+
+.admin-toolbar input {
+  flex: 1;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.admin-post {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 18px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.admin-post-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-post-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.admin-post-top span {
+  color: #718096;
+  font-size: 13px;
+}
+
+.admin-post-top em {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ebf4ff;
+  color: #2b6cb0;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.admin-post p {
+  margin: 0 0 10px;
+  color: #1a202c;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-post-image {
+  display: block;
+  max-width: 260px;
+  max-height: 180px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.admin-post small {
+  color: #718096;
+}
+
+.admin-delete {
+  align-self: flex-start;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #e53e3e;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-delete:hover:not(:disabled) {
+  background: #c53030;
+}
+
+.admin-delete:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.admin-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: #718096;
+}

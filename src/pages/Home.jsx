@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import "./Home.css";
 import { Link, useNavigate } from "react-router-dom";
-import { API, getMediaUrl, getNotificationIcon } from "../utils";
+import { API, MAX_UPLOAD_MB, getMediaUrl, getNotificationIcon } from "../utils";
 
 function Home() {
   const navigate = useNavigate();
@@ -72,6 +72,12 @@ function Home() {
   const [commentInputs, setCommentInputs] = useState({});
   const [openComments, setOpenComments] = useState({});
   const [loadingComments, setLoadingComments] = useState({});
+
+  // SỬA BÀI VIẾT
+
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // LẤY BÀI VIẾT
 
@@ -588,6 +594,13 @@ function Home() {
       return;
     }
 
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      event.target.value = "";
+      setMessage(`File không được lớn hơn ${MAX_UPLOAD_MB}MB!`);
+
+      return;
+    }
+
     setMessage("");
 
     setSelectedFile(file);
@@ -1050,6 +1063,119 @@ function Home() {
     }
   };
 
+  // GỌI API SỬA / XÓA BÀI VIẾT
+
+  const callManagePost = async (body) => {
+    const response = await fetch(`${API}/posts/manage.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...body, user_id: user.id }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message);
+      return null;
+    }
+
+    return data;
+  };
+
+  // BẮT ĐẦU / HỦY SỬA BÀI
+
+  const handleStartEdit = (post) => {
+    setEditingPostId(post.id);
+    setEditContent(post.content || "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPostId(null);
+    setEditContent("");
+  };
+
+  // LƯU BÀI ĐÃ SỬA
+
+  const handleSaveEdit = async (post) => {
+    if (!user || savingEdit) {
+      return;
+    }
+
+    setSavingEdit(true);
+
+    try {
+      const data = await callManagePost({ action: "update", post_id: post.id, content: editContent });
+
+      if (data) {
+        setPosts((currentPosts) =>
+          currentPosts.map((item) => (item.id === post.id ? { ...item, content: data.content } : item)),
+        );
+
+        handleCancelEdit();
+      }
+    } catch (error) {
+      console.log("Lỗi sửa bài viết:", error);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  // XÓA BÀI VIẾT
+
+  const handleDeletePost = async (post) => {
+    if (!user || !window.confirm("Bạn có chắc muốn xóa bài viết này?")) {
+      return;
+    }
+
+    try {
+      const data = await callManagePost({ action: "delete", post_id: post.id });
+
+      if (data) {
+        setPosts((currentPosts) => currentPosts.filter((item) => item.id !== post.id));
+      }
+    } catch (error) {
+      console.log("Lỗi xóa bài viết:", error);
+    }
+  };
+
+  // XÓA BÌNH LUẬN
+
+  const handleDeleteComment = async (postId, commentId) => {
+    if (!user || !window.confirm("Bạn có chắc muốn xóa bình luận này?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API}/posts/comment-delete.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id, comment_id: commentId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      setComments((current) => ({
+        ...current,
+        [postId]: (current[postId] || []).filter((comment) => comment.id !== commentId),
+      }));
+
+      setPosts((currentPosts) =>
+        currentPosts.map((post) =>
+          post.id === postId
+            ? { ...post, comment_count: Math.max(0, (Number(post.comment_count) || 0) - 1) }
+            : post,
+        ),
+      );
+    } catch (error) {
+      console.log("Lỗi xóa bình luận:", error);
+    }
+  };
+
   // RENDER
 
   return (
@@ -1323,6 +1449,17 @@ function Home() {
           ) : (
             posts.map((post) => (
               <section className="post" id={`post-${post.id}`} key={post.id}>
+                {/* NÚT SỬA / XÓA (CHỈ CHỦ BÀI VIẾT) */}
+
+                {Number(post.user_id) === Number(user?.id) && editingPostId !== post.id && (
+                  <div className="post-owner-actions">
+                    <button onClick={() => handleStartEdit(post)}>✏️ Sửa</button>
+                    <button className="danger" onClick={() => handleDeletePost(post)}>
+                      🗑️ Xóa
+                    </button>
+                  </div>
+                )}
+
                 {/* HEADER */}
 
                 <div className="post-header">
@@ -1349,10 +1486,25 @@ function Home() {
 
                 {/* NỘI DUNG */}
 
-                {post.content && (
-                  <div className="post-content">
-                    <p>{post.content}</p>
+                {editingPostId === post.id ? (
+                  <div className="post-edit">
+                    <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} />
+
+                    <div className="post-edit-actions">
+                      <button onClick={() => handleSaveEdit(post)} disabled={savingEdit}>
+                        {savingEdit ? "Đang lưu..." : "Lưu"}
+                      </button>
+                      <button className="cancel" onClick={handleCancelEdit}>
+                        Hủy
+                      </button>
+                    </div>
                   </div>
+                ) : (
+                  post.content && (
+                    <div className="post-content">
+                      <p>{post.content}</p>
+                    </div>
+                  )
                 )}
 
                 {/* MEDIA */}
@@ -1481,6 +1633,15 @@ function Home() {
                                       ? new Date(comment.created_at).toLocaleString("vi-VN")
                                       : ""}
                                   </span>
+
+                                  {Number(comment.user_id) === Number(user?.id) && (
+                                    <button
+                                      className="comment-delete"
+                                      onClick={() => handleDeleteComment(post.id, comment.id)}
+                                    >
+                                      Xóa
+                                    </button>
+                                  )}
                                 </div>
 
                                 <p>{comment.content}</p>

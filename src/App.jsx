@@ -8,6 +8,13 @@ import Account from "./pages/Account";
 import Friends from "./pages/Friends";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
+import Admin from "./pages/Admin";
+import { isAdmin, homePath } from "./utils";
+
+// Chỉ cho admin vào (kiểm tra mỗi lần vào trang, không chỉ lúc tải web)
+function AdminRoute({ children }) {
+  return isAdmin() ? children : <Navigate to="/" replace />;
+}
 
 function App() {
   const user = localStorage.getItem("user");
@@ -17,15 +24,15 @@ function App() {
       <Routes>
         {/* TRANG CHỦ */}
 
-        <Route path="/" element={user ? <Navigate to="/home" replace /> : <Login />} />
+        <Route path="/" element={user ? <Navigate to={homePath()} replace /> : <Login />} />
 
         {/* ĐĂNG NHẬP */}
 
-        <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
+        <Route path="/login" element={user ? <Navigate to={homePath()} replace /> : <Login />} />
 
         {/* ĐĂNG KÝ */}
 
-        <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
+        <Route path="/register" element={user ? <Navigate to={homePath()} replace /> : <Register />} />
 
         {/* HOME */}
 
@@ -79,6 +86,17 @@ function App() {
             <ProtectedRoute>
               <Notifications />
             </ProtectedRoute>
+          }
+        />
+
+        {/* QUẢN TRỊ (CHỈ ADMIN) */}
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
           }
         />
 

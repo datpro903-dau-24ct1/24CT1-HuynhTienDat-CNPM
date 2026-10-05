@@ -246,6 +246,45 @@ function Friends() {
     }
   };
 
+  // HỦY KẾT BẠN / HỦY LỜI MỜI ĐÃ GỬI
+  // PHP
+
+  const handleRemoveFriend = async (friendId, message) => {
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API}/friends/remove.php`, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          user_id: user.id,
+
+          friend_id: friendId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+
+        return;
+      }
+
+      await fetchFriends();
+
+      await fetchUsers();
+    } catch (error) {
+      console.log("Lỗi hủy kết bạn:", error);
+    }
+  };
+
   // TÌM KIẾM
 
   const filteredUsers = users.filter((item) => {
@@ -383,6 +422,13 @@ function Friends() {
                   <span>{friend.class}</span>
 
                   <small>MSSV: {friend.student_code}</small>
+
+                  <button
+                    className="unfriend-btn"
+                    onClick={() => handleRemoveFriend(friend.id, `Hủy kết bạn với ${friend.name}?`)}
+                  >
+                    Hủy kết bạn
+                  </button>
                 </div>
               ))}
             </div>
@@ -443,7 +489,18 @@ function Friends() {
                     {item.friend_status === "accepted" ? (
                       <button className="friend-status">✓ Bạn bè</button>
                     ) : item.friend_status === "pending_sent" ? (
-                      <button className="friend-status pending">⏳ Đã gửi</button>
+                      <>
+                        <button className="friend-status pending">⏳ Đã gửi</button>
+
+                        <button
+                          className="cancel-request-btn"
+                          onClick={() =>
+                            handleRemoveFriend(item.id, `Hủy lời mời kết bạn gửi tới ${item.name}?`)
+                          }
+                        >
+                          Hủy lời mời
+                        </button>
+                      </>
                     ) : item.friend_status === "pending_received" ? (
                       <button className="friend-status pending">🔔 Đang chờ bạn</button>
                     ) : (
