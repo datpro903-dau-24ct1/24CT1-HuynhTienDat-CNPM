@@ -1,7 +1,7 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./Friends.css";
-import { API } from "../utils";
+import { API, postJson } from "../utils";
 
 function Friends() {
   // USER
@@ -255,33 +255,13 @@ function Friends() {
     }
 
     try {
-      const response = await fetch(`${API}/friends/remove.php`, {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          user_id: user.id,
-
-          friend_id: friendId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-
-        return;
-      }
+      await postJson(`${API}/friends/remove.php`, { user_id: user.id, friend_id: friendId });
 
       await fetchFriends();
 
       await fetchUsers();
     } catch (error) {
-      console.log("Lỗi hủy kết bạn:", error);
+      alert(error.message);
     }
   };
 

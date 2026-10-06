@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import "./Home.css";
 import { Link, useNavigate } from "react-router-dom";
-import { API, MAX_UPLOAD_MB, getMediaUrl, getNotificationIcon } from "../utils";
+import { API, MAX_UPLOAD_MB, getMediaUrl, getNotificationIcon, postJson } from "../utils";
 
 function Home() {
   const navigate = useNavigate();
@@ -1065,22 +1065,7 @@ function Home() {
 
   // GỌI API SỬA / XÓA BÀI VIẾT
 
-  const callManagePost = async (body) => {
-    const response = await fetch(`${API}/posts/manage.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...body, user_id: user.id }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.message);
-      return null;
-    }
-
-    return data;
-  };
+  const callManagePost = (body) => postJson(`${API}/posts/manage.php`, { ...body, user_id: user.id });
 
   // BẮT ĐẦU / HỦY SỬA BÀI
 
@@ -1106,15 +1091,13 @@ function Home() {
     try {
       const data = await callManagePost({ action: "update", post_id: post.id, content: editContent });
 
-      if (data) {
-        setPosts((currentPosts) =>
-          currentPosts.map((item) => (item.id === post.id ? { ...item, content: data.content } : item)),
-        );
+      setPosts((currentPosts) =>
+        currentPosts.map((item) => (item.id === post.id ? { ...item, content: data.content } : item)),
+      );
 
-        handleCancelEdit();
-      }
+      handleCancelEdit();
     } catch (error) {
-      console.log("Lỗi sửa bài viết:", error);
+      alert(error.message);
     } finally {
       setSavingEdit(false);
     }
@@ -1128,13 +1111,11 @@ function Home() {
     }
 
     try {
-      const data = await callManagePost({ action: "delete", post_id: post.id });
+      await callManagePost({ action: "delete", post_id: post.id });
 
-      if (data) {
-        setPosts((currentPosts) => currentPosts.filter((item) => item.id !== post.id));
-      }
+      setPosts((currentPosts) => currentPosts.filter((item) => item.id !== post.id));
     } catch (error) {
-      console.log("Lỗi xóa bài viết:", error);
+      alert(error.message);
     }
   };
 
@@ -1146,18 +1127,7 @@ function Home() {
     }
 
     try {
-      const response = await fetch(`${API}/posts/comment-delete.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user.id, comment_id: commentId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
+      await postJson(`${API}/posts/comment-delete.php`, { user_id: user.id, comment_id: commentId });
 
       setComments((current) => ({
         ...current,
@@ -1172,7 +1142,7 @@ function Home() {
         ),
       );
     } catch (error) {
-      console.log("Lỗi xóa bình luận:", error);
+      alert(error.message);
     }
   };
 

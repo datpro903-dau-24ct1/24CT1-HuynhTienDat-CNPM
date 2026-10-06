@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Admin.css";
-import { API, getMediaUrl } from "../utils";
+import { API, getMediaUrl, postJson } from "../utils";
 
 const MEDIA_LABEL = { image: "🖼️ Ảnh", video: "🎬 Video", file: "📎 Tệp" };
 
@@ -41,26 +41,11 @@ function Admin() {
     setDeletingId(post.id);
 
     try {
-      const response = await fetch(`${API}/posts/manage.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "delete",
-          post_id: post.id,
-          user_id: user.id,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
+      await postJson(`${API}/posts/manage.php`, { action: "delete", post_id: post.id, user_id: user.id });
 
       setPosts((current) => current.filter((item) => item.id !== post.id));
     } catch (error) {
-      console.log("Lỗi xóa bài viết:", error);
+      alert(error.message);
     } finally {
       setDeletingId(null);
     }
