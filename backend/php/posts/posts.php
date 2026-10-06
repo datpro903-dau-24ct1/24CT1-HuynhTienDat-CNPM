@@ -152,9 +152,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $fileSize = $_FILES["media"]["size"];
 
-    // GIỚI HẠN 100MB
+    // GIỚI HẠN 10MB
 
-    $maxSize = 100 * 1024 * 1024;
+    $maxSize = 10 * 1024 * 1024;
 
     if ($fileSize > $maxSize) {
       http_response_code(400);
