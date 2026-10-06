@@ -58,7 +58,7 @@ function Login() {
     <div className="auth-page">
       <div className="auth-box">
         <div className="auth-left">
-          <h1>IT Community</h1>
+          <h1>IT Connect</h1>
 
           <p>Kết nối sinh viên Khoa Công nghệ thông tin</p>
         </div>

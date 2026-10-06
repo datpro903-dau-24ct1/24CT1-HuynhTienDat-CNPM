@@ -96,7 +96,7 @@ function Register() {
                 {/* LEFT */}
                 <div className="register-left">
 
-                    <h1>IT Community</h1>
+                    <h1>IT Connect</h1>
 
                     <p>
                         Cộng đồng sinh viên Khoa Công nghệ thông tin

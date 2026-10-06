@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       http_response_code(400);
 
       echo json_encode([
-        "message" => "File không được lớn hơn 100MB!",
+        "message" => "File không được lớn hơn 10MB!",
       ]);
 
       exit();
