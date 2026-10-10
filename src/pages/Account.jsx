@@ -1,5 +1,5 @@
-﻿import { useEffect, useRef, useState } from "react";
-import { API } from "../utils";
+import { useEffect, useRef, useState } from "react";
+import { API, getMediaUrl } from "../utils";
 
 import { Link } from "react-router-dom";
 
@@ -362,7 +362,7 @@ function Account() {
 
   // AVATAR URL
 
-  const avatarUrl = user.avatar ? `${API}/${user.avatar}` : null;
+  const avatarUrl = getMediaUrl(user.avatar);
 
   // RENDER
 
@@ -518,7 +518,7 @@ function Account() {
 
               <p>Hãy chia sẻ điều gì đó với cộng đồng IT CONNECT.</p>
 
-              <Link to="/">Đăng bài ngay</Link>
+              <Link to="/home">Đăng bài ngay</Link>
             </div>
           ) : (
             <div className="account-post-list">

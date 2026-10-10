@@ -1,6 +1,11 @@
 export const API = "https://itconect.free.je/api";
 
-export const getMediaUrl = (path) => (!path ? null : /^https?:\/\//.test(path) ? path : `${API}/${path}`);
+export const getMediaUrl = (path) => {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  return `${API}/${cleanPath}`;
+};
 
 const ICONS = { friend_request: "👥", friend_accept: "🤝", message: "💬" };
 export const getNotificationIcon = (type) => ICONS[type] || "🔔";

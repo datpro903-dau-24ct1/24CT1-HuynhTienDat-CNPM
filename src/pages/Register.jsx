@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
+import { API } from "../utils";
 
 function Register() {
     const navigate = useNavigate();
@@ -44,7 +45,7 @@ function Register() {
 
         try {
             const response = await fetch(
-                "https://itconect.free.je/api/auth/register.php",
+                `${API}/auth/register.php`,
                 {
                     method: "POST",
                     headers: {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./Messages.css";
-import { API } from "../utils";
+import { API, getMediaUrl } from "../utils";
 
 function Messages() {
   // API
@@ -12,12 +12,7 @@ function Messages() {
 
   // HÀM LẤY URL AVATAR
 
-  const getAvatarUrl = (avatar) =>
-    !avatar
-      ? null
-      : /^https?:\/\//.test(avatar)
-        ? avatar
-        : `${API}${avatar.startsWith("/") ? "" : "/"}${avatar}`;
+  const getAvatarUrl = getMediaUrl;
 
   // URL PARAMS
 
