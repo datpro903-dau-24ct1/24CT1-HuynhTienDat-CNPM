@@ -874,3 +874,78 @@
     display: block;
   }
   
+
+/* NÚT ĐỔI MẬT KHẨU */
+.change-password-btn {
+  background: #f0f2f5 !important;
+  color: #1c1e21 !important;
+  border: 1px solid #ccd0d5 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.change-password-btn:hover {
+  background: #e4e6eb !important;
+  border-color: #bec3c9 !important;
+}
+
+/* CHECKBOX HIỂN THỊ MẬT KHẨU */
+.show-password-row {
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+
+.show-password-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #65676b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-password-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #1877f2;
+}
+
+/* NÚT ĐỔI MẬT KHẨU */
+.change-password-btn {
+  background: #f0f2f5 !important;
+  color: #1c1e21 !important;
+  border: 1px solid #ccd0d5 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.change-password-btn:hover {
+  background: #e4e6eb !important;
+  border-color: #bec3c9 !important;
+}
+
+/* CHECKBOX HIỂN THỊ MẬT KHẨU */
+.show-password-row {
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+
+.show-password-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #65676b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-password-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #1877f2;
+}
+  

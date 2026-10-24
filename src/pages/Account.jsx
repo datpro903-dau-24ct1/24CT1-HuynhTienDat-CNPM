@@ -34,6 +34,17 @@ function Account() {
     date_of_birth: "",
   });
 
+  // CHANGE PASSWORD
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [showPasswordText, setShowPasswordText] = useState(false);
+
   // LẤY USER
 
   useEffect(() => {
@@ -346,6 +357,94 @@ function Account() {
     }
   };
 
+  // CHANGE PASSWORD HANDLERS
+
+  const handleOpenPasswordModal = () => {
+    setPasswordForm({
+      current_password: "",
+      new_password: "",
+      confirm_password: "",
+    });
+    setPasswordMessage("");
+    setShowPasswordText(false);
+    setShowPasswordModal(true);
+  };
+
+  const handleClosePasswordModal = () => {
+    if (changingPassword) return;
+    setShowPasswordModal(false);
+    setPasswordMessage("");
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault();
+    if (changingPassword) return;
+
+    if (!passwordForm.current_password || !passwordForm.new_password || !passwordForm.confirm_password) {
+      setPasswordMessage("Vui lòng nhập đầy đủ các trường!");
+      return;
+    }
+
+    if (passwordForm.new_password.length < 6) {
+      setPasswordMessage("Mật khẩu mới phải có ít nhất 6 ký tự!");
+      return;
+    }
+
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      setPasswordMessage("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
+    if (passwordForm.current_password === passwordForm.new_password) {
+      setPasswordMessage("Mật khẩu mới không được trùng với mật khẩu hiện tại!");
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      setPasswordMessage("");
+
+      const response = await fetch(`${API}/account/change-password.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          current_password: passwordForm.current_password,
+          new_password: passwordForm.new_password,
+          confirm_password: passwordForm.confirm_password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPasswordMessage(data.message || "Đổi mật khẩu thất bại!");
+        return;
+      }
+
+      setPasswordMessage("Đổi mật khẩu thành công!");
+      setTimeout(() => {
+        setShowPasswordModal(false);
+        setPasswordMessage("");
+      }, 1500);
+    } catch (error) {
+      console.log("Lỗi đổi mật khẩu:", error);
+      setPasswordMessage("Không thể kết nối đến máy chủ!");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   // ĐĂNG XUẤT
 
   const handleLogout = () => {
@@ -486,6 +585,10 @@ function Account() {
             <div className="profile-actions">
               <button type="button" onClick={handleOpenEdit}>
                 ✏️ Chỉnh sửa thông tin
+              </button>
+
+              <button type="button" className="change-password-btn" onClick={handleOpenPasswordModal}>
+                🔑 Đổi mật khẩu
               </button>
 
               <button type="button" className="logout-btn" onClick={handleLogout}>
@@ -730,6 +833,126 @@ function Account() {
 
                 <button type="submit" className="edit-save" disabled={saving}>
                   {saving ? "Đang lưu..." : "💾 Lưu thay đổi"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ĐỔI MẬT KHẨU */}
+      {showPasswordModal && (
+        <div
+          className="edit-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !changingPassword) {
+              handleClosePasswordModal();
+            }
+          }}
+        >
+          <div
+            className="edit-modal"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {/* HEADER */}
+            <div className="edit-modal-header">
+              <div>
+                <h2>🔑 Đổi mật khẩu</h2>
+                <p>Cập nhật mật khẩu mới cho tài khoản của bạn</p>
+              </div>
+
+              <button
+                type="button"
+                className="edit-close"
+                onClick={handleClosePasswordModal}
+                disabled={changingPassword}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* FORM */}
+            <form className="edit-form" onSubmit={handleSavePassword}>
+              {/* MẬT KHẨU HIỆN TẠI */}
+              <div className="edit-form-group">
+                <label>Mật khẩu hiện tại</label>
+                <input
+                  type={showPasswordText ? "text" : "password"}
+                  name="current_password"
+                  value={passwordForm.current_password}
+                  onChange={handlePasswordChange}
+                  placeholder="Nhập mật khẩu hiện tại"
+                  disabled={changingPassword}
+                  required
+                />
+              </div>
+
+              {/* MẬT KHẨU MỚI */}
+              <div className="edit-form-group">
+                <label>Mật khẩu mới (tối thiểu 6 ký tự)</label>
+                <input
+                  type={showPasswordText ? "text" : "password"}
+                  name="new_password"
+                  value={passwordForm.new_password}
+                  onChange={handlePasswordChange}
+                  placeholder="Nhập mật khẩu mới"
+                  disabled={changingPassword}
+                  required
+                />
+              </div>
+
+              {/* XÁC NHẬN MẬT KHẨU MỚI */}
+              <div className="edit-form-group">
+                <label>Xác nhận mật khẩu mới</label>
+                <input
+                  type={showPasswordText ? "text" : "password"}
+                  name="confirm_password"
+                  value={passwordForm.confirm_password}
+                  onChange={handlePasswordChange}
+                  placeholder="Nhập lại mật khẩu mới"
+                  disabled={changingPassword}
+                  required
+                />
+              </div>
+
+              {/* HIỂN THỊ MẬT KHẨU CHECKBOX */}
+              <div className="show-password-row">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showPasswordText}
+                    onChange={(e) => setShowPasswordText(e.target.checked)}
+                  />
+                  <span>Hiển thị mật khẩu</span>
+                </label>
+              </div>
+
+              {/* MESSAGE */}
+              {passwordMessage && (
+                <div
+                  className={
+                    passwordMessage.includes("thành công") ? "edit-message success" : "edit-message error"
+                  }
+                >
+                  {passwordMessage}
+                </div>
+              )}
+
+              {/* BUTTONS */}
+              <div className="edit-form-actions">
+                <button
+                  type="button"
+                  className="edit-cancel"
+                  onClick={handleClosePasswordModal}
+                  disabled={changingPassword}
+                >
+                  Hủy
+                </button>
+
+                <button type="submit" className="edit-save" disabled={changingPassword}>
+                  {changingPassword ? "Đang xử lý..." : "🔒 Cập nhật mật khẩu"}
                 </button>
               </div>
             </form>
