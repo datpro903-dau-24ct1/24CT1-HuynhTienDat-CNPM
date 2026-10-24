@@ -8,7 +8,12 @@ function Messages() {
 
   // USER
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    user = null;
+  }
 
   // HÀM LẤY URL AVATAR
 
@@ -487,7 +492,30 @@ function Messages() {
                           )}
 
                           <div className="message-content">
-                            <div className="message-bubble">{message.content}</div>
+                            <div className="message-bubble">
+                              {(() => {
+                                const msgText = message.content || "";
+                                const match = msgText.match(/\[\[IT_CONNECT_POST:(\d+)\]\]/);
+                                const sharedPostId = match ? match[1] : null;
+                                const displayText = sharedPostId
+                                  ? msgText.replace(/\[\[IT_CONNECT_POST:\d+\]\]/, "").trim()
+                                  : msgText;
+
+                                return (
+                                  <>
+                                    <div style={{ whiteSpace: "pre-wrap" }}>{displayText}</div>
+                                    {sharedPostId && (
+                                      <Link
+                                        to={`/home?post=${sharedPostId}`}
+                                        className="shared-post-link"
+                                      >
+                                        🔗 Xem bài viết
+                                      </Link>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
 
                             <small>
                               {new Date(message.created_at).toLocaleTimeString("vi-VN", {

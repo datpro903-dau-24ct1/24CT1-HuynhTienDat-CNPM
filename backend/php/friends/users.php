@@ -68,13 +68,15 @@ $sql = "
                 FROM friendships f
                 WHERE
                     (
-                        f.user_id = ?
-                        AND f.friend_id = u.id
-                    )
-                    OR
-                    (
-                        f.user_id = u.id
-                        AND f.friend_id = ?
+                        (
+                            f.user_id = ?
+                            AND f.friend_id = u.id
+                        )
+                        OR
+                        (
+                            f.user_id = u.id
+                            AND f.friend_id = ?
+                        )
                     )
                     AND f.status = 'accepted'
             )

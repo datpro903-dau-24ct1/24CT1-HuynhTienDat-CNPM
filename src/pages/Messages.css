@@ -343,6 +343,30 @@
   
     border-bottom-left-radius: 5px;
   }
+
+  .shared-post-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s;
+  }
+
+  .message-row.mine .shared-post-link {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+  }
+
+  .shared-post-link:hover {
+    text-decoration: underline;
+  }
   
   .message-content small {
     margin-top: 4px;

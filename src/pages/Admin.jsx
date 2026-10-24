@@ -5,7 +5,12 @@ import { API, getMediaUrl, postJson } from "../utils";
 const MEDIA_LABEL = { image: "🖼️ Ảnh", video: "🎬 Video", file: "📎 Tệp" };
 
 function Admin() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    user = null;
+  }
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +20,11 @@ function Admin() {
   // LẤY TẤT CẢ BÀI VIẾT
 
   useEffect(() => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
     const fetchPosts = async () => {
       try {
         const response = await fetch(`${API}/posts/posts.php?user_id=${user.id}`);
@@ -29,7 +39,7 @@ function Admin() {
     };
 
     fetchPosts();
-  }, [user.id]);
+  }, [user?.id]);
 
   // XÓA BÀI VIẾT
 
@@ -64,7 +74,7 @@ function Admin() {
       <header className="admin-header">
         <div>
           <h1>🛡️ Quản trị ITConnect</h1>
-          <span>Xin chào, {user.name}</span>
+          <span>Xin chào, {user?.name || "Quản trị viên"}</span>
         </div>
 
         <button
@@ -108,6 +118,24 @@ function Admin() {
 
                 {post.media_type === "image" && post.image && (
                   <img src={getMediaUrl(post.image)} alt="Ảnh bài viết" className="admin-post-image" />
+                )}
+
+                {post.media_type === "video" && post.file && (
+                  <video src={getMediaUrl(post.file)} controls className="admin-post-video" />
+                )}
+
+                {post.media_type === "file" && post.file && (
+                  <div className="admin-post-file">
+                    <span>📎 {post.file.split("/").pop()}</span>
+                    <a
+                      href={getMediaUrl(post.file)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-file-download"
+                    >
+                      Mở / Tải tệp
+                    </a>
+                  </div>
                 )}
 
                 <small>

@@ -215,8 +215,7 @@ function Home() {
 
                 try {
                   await fetch(`${API}/notifications/read.php?id=${newMessageNotification.id}`, {
-                    method: "GET",
-                    cache: "no-store",
+                    method: "PUT",
                   });
                 } catch (error) {
                   console.log("Lỗi đánh dấu thông báo:", error);
@@ -606,9 +605,12 @@ function Home() {
     setSelectedFile(file);
     setFileType(type);
 
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview);
+    }
+
     if (type === "image" || type === "video") {
       const previewUrl = URL.createObjectURL(file);
-
       setFilePreview(previewUrl);
     } else {
       setFilePreview(null);
@@ -819,7 +821,7 @@ function Home() {
 
     const notificationInterval = setInterval(() => {
       fetchNotifications();
-    }, 2000);
+    }, 5000);
 
     return () => {
       clearInterval(notificationInterval);
@@ -1247,11 +1249,11 @@ function Home() {
               ) : user?.name ? (
                 user.name.charAt(0).toUpperCase()
               ) : (
-                "Đ"
+                "U"
               )}
             </div>
 
-            <span>{user?.name || "Đạt"}</span>
+            <span>{user?.name || "Người dùng"}</span>
           </div>
         </div>
       </header>

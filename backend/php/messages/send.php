@@ -66,17 +66,16 @@ $sql = "
 
     WHERE
         (
-            user_id = ?
-            AND friend_id = ?
+            (
+                user_id = ?
+                AND friend_id = ?
+            )
+            OR
+            (
+                user_id = ?
+                AND friend_id = ?
+            )
         )
-
-        OR
-
-        (
-            user_id = ?
-            AND friend_id = ?
-        )
-
         AND status = 'accepted'
 
     LIMIT 1

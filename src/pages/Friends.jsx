@@ -1,12 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./Friends.css";
-import { API, postJson } from "../utils";
+import { API, postJson, getMediaUrl } from "../utils";
 
 function Friends() {
   // USER
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    user = null;
+  }
 
   // URL PARAMS
 
@@ -331,7 +336,13 @@ function Friends() {
                 <div className="request-item" key={request.id}>
                   {/* AVATAR */}
 
-                  <div className="friend-avatar">{request.name?.charAt(0).toUpperCase()}</div>
+                  <div className="friend-avatar">
+                    {request.avatar ? (
+                      <img src={getMediaUrl(request.avatar)} alt="" />
+                    ) : (
+                      request.name?.charAt(0).toUpperCase()
+                    )}
+                  </div>
 
                   {/* THÔNG TIN */}
 
@@ -395,7 +406,13 @@ function Friends() {
             <div className="friends-grid">
               {friends.map((friend) => (
                 <div className="friend-card" key={friend.id}>
-                  <div className="friend-avatar large">{friend.name?.charAt(0).toUpperCase()}</div>
+                  <div className="friend-avatar large">
+                    {friend.avatar ? (
+                      <img src={getMediaUrl(friend.avatar)} alt="" />
+                    ) : (
+                      friend.name?.charAt(0).toUpperCase()
+                    )}
+                  </div>
 
                   <strong>{friend.name}</strong>
 
@@ -451,7 +468,13 @@ function Friends() {
                 <div className="user-card" key={item.id}>
                   {/* AVATAR */}
 
-                  <div className="friend-avatar">{item.name?.charAt(0).toUpperCase()}</div>
+                  <div className="friend-avatar">
+                    {item.avatar ? (
+                      <img src={getMediaUrl(item.avatar)} alt="" />
+                    ) : (
+                      item.name?.charAt(0).toUpperCase()
+                    )}
+                  </div>
 
                   {/* INFO */}
 

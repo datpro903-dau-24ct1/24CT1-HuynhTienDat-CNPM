@@ -16,6 +16,12 @@ function Login() {
     e.preventDefault();
 
     setError("");
+
+    if (!email.trim() || !password.trim()) {
+      setError("Vui lòng nhập đầy đủ email và mật khẩu!");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -77,6 +83,7 @@ function Login() {
                 placeholder="Nhập email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -88,6 +95,7 @@ function Login() {
                 placeholder="Nhập mật khẩu"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 

@@ -3,7 +3,7 @@
 header("Content-Type: application/json; charset=UTF-8");
 
 $host = "sql302.infinityfree.com";
-$user = "if0_43021630 ";
+$user = "if0_43021630";
 $password = "itconnect6";
 $database = "if0_43021630_itconnect";
 

@@ -550,7 +550,39 @@ function Account() {
 
                   {/* POST CONTENT */}
 
-                  <div className="account-post-content">{post.content}</div>
+                  {post.content && <div className="account-post-content">{post.content}</div>}
+
+                  {/* MEDIA */}
+
+                  {post.media_type === "image" && post.image && (
+                    <div className="account-post-media">
+                      <img src={getMediaUrl(post.image)} alt="Ảnh bài viết" className="account-post-image" />
+                    </div>
+                  )}
+
+                  {post.media_type === "video" && post.file && (
+                    <div className="account-post-media">
+                      <video src={getMediaUrl(post.file)} controls className="account-post-video" />
+                    </div>
+                  )}
+
+                  {post.media_type === "file" && post.file && (
+                    <div className="account-post-file">
+                      <span className="account-file-icon">📎</span>
+                      <div className="account-file-info">
+                        <strong>{post.file.split("/").pop()}</strong>
+                        <small>Tệp đính kèm</small>
+                      </div>
+                      <a
+                        href={getMediaUrl(post.file)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="account-file-btn"
+                      >
+                        Mở tệp
+                      </a>
+                    </div>
+                  )}
 
                   {/* POST STATS */}
 

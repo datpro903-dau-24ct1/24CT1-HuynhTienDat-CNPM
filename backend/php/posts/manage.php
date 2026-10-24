@@ -17,6 +17,10 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 require_once "../config/database.php";
 
 function respond($code, $message, $extra = []) {
+  global $conn;
+  if (isset($conn) && $conn instanceof mysqli) {
+    @$conn->close();
+  }
   http_response_code($code);
   echo json_encode(array_merge(["message" => $message], $extra));
   exit();
@@ -128,7 +132,5 @@ if ($action === "delete") {
 }
 
 respond(400, "Hành động không hợp lệ!");
-
-$conn->close();
 
 ?>

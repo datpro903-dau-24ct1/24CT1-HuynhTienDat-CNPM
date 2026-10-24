@@ -24,7 +24,24 @@ function Register() {
         setMessage("");
         setError("");
 
+        if (
+            !name.trim() ||
+            !email.trim() ||
+            !studentCode.trim() ||
+            !className.trim() ||
+            !dateOfBirth ||
+            !password.trim()
+        ) {
+            setError("Vui lòng điền đầy đủ tất cả thông tin!");
+            return;
+        }
+
         // Kiểm tra mật khẩu
+        if (password.length < 6) {
+            setError("Mật khẩu phải có ít nhất 6 ký tự!");
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError("Mật khẩu xác nhận không khớp!");
             return;
@@ -100,7 +117,7 @@ function Register() {
                     <h1>IT Connect</h1>
 
                     <p>
-                        Cộng đồng sinh viên Khoa Công nghệ thông tin
+                        Cộng đồng sinh viên Khoa Công nghệ thông tin DAU
                     </p>
 
                     <div className="register-intro">
@@ -133,6 +150,7 @@ function Register() {
                                 onChange={(e) =>
                                     setName(e.target.value)
                                 }
+                                required
                             />
                         </div>
 
@@ -161,6 +179,7 @@ function Register() {
                                 onChange={(e) =>
                                     setEmail(e.target.value)
                                 }
+                                required
                             />
                         </div>
 
@@ -175,6 +194,7 @@ function Register() {
                                 onChange={(e) =>
                                     setStudentCode(e.target.value)
                                 }
+                                required
                             />
                         </div>
 
@@ -189,6 +209,7 @@ function Register() {
                                 onChange={(e) =>
                                     setClassName(e.target.value)
                                 }
+                                required
                             />
                         </div>
 
@@ -198,11 +219,12 @@ function Register() {
 
                             <input
                                 type="password"
-                                placeholder="Nhập mật khẩu"
+                                placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
                                 value={password}
                                 onChange={(e) =>
                                     setPassword(e.target.value)
                                 }
+                                required
                             />
                         </div>
 
@@ -217,6 +239,7 @@ function Register() {
                                 onChange={(e) =>
                                     setConfirmPassword(e.target.value)
                                 }
+                                required
                             />
                         </div>
 

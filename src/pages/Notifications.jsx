@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Notifications.css";
 import { API, getNotificationIcon } from "../utils";
@@ -37,37 +37,15 @@ function Notifications() {
         setLoading(true);
       }
 
-      const url = `${API}/notifications/notifications.php?user_id=${user.id}`;
-
-      console.log("🔔 Gọi API thông báo:", url);
-
-      const response = await fetch(url);
-
-      console.log("🔔 HTTP status:", response.status);
-
+      const response = await fetch(`${API}/notifications/notifications.php?user_id=${user.id}`);
       const data = await response.json();
 
-      console.log("🔔 Dữ liệu API trả về:", data);
-
-      console.log("🔔 Có phải Array:", Array.isArray(data));
-
       if (!response.ok) {
-        console.log("❌ API lỗi:", data.message || "Không thể lấy thông báo");
-
         setNotifications([]);
-
         return;
       }
 
-      if (Array.isArray(data)) {
-        console.log(`✅ Đã nhận ${data.length} thông báo`);
-
-        setNotifications(data);
-      } else {
-        console.log("❌ API không trả về mảng:", data);
-
-        setNotifications([]);
-      }
+      setNotifications(Array.isArray(data) ? data : []);
     } catch (error) {
       console.log("❌ Lỗi lấy thông báo:", error);
 
@@ -333,9 +311,9 @@ function Notifications() {
           </Link>
 
           <div className="notifications-user" onClick={() => navigate("/account")}>
-            <div className="notifications-avatar">{user?.name ? user.name.charAt(0).toUpperCase() : "Đ"}</div>
+            <div className="notifications-avatar">{user?.name ? user.name.charAt(0).toUpperCase() : "U"}</div>
 
-            <span>{user?.name || "Đạt"}</span>
+            <span>{user?.name || "Người dùng"}</span>
           </div>
         </div>
       </header>

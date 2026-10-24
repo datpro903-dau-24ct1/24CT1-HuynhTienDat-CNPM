@@ -780,3 +780,31 @@
     }
   }
   
+
+/* NOTIFICATION DELETE BUTTON */
+.notification-delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #8c939d;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.notification-delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.notification-delete:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -3134,3 +3134,25 @@ body {
   background: #2b6cb0;
   color: white;
 }
+
+/* HIGHLIGHT ANIMATIONS */
+.shared-post-highlight,
+.notification-highlight {
+  animation: postHighlightFade 3s ease forwards;
+  border-radius: 12px;
+}
+
+@keyframes postHighlightFade {
+  0% {
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.6);
+    background-color: #ebf5ff;
+  }
+  70% {
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.3);
+    background-color: #f0f7ff;
+  }
+  100% {
+    box-shadow: none;
+    background-color: #ffffff;
+  }
+}

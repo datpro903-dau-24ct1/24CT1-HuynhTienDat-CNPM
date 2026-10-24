@@ -87,6 +87,15 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
+
+    if (!$postId && isset($data["post_id"])) {
+        $postId = intval($data["post_id"]);
+    }
+
     if (!$postId) {
 
         http_response_code(400);
@@ -98,10 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    $data = json_decode(
-        file_get_contents("php://input"),
-        true
-    );
+
 
     $userId = intval($data["user_id"] ?? 0);
     $content = trim($data["content"] ?? "");
