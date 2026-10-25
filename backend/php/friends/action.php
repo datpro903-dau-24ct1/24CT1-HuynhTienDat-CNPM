@@ -147,11 +147,21 @@ if ($method === "POST" && isset($_GET["action"]) && $_GET["action"] === "request
     exit();
   }
 
+  $newFriendshipId = isset($friendship["id"]) ? $friendship["id"] : $stmt->insert_id;
+  $stmt->close();
+
+  // Tạo thông báo gửi lời mời kết bạn
+  $notifContent = "đã gửi cho bạn một lời mời kết bạn.";
+  $notifSql = "INSERT INTO notifications (user_id, type, from_user_id, content, related_id) VALUES (?, 'friend_request', ?, ?, ?)";
+  $notifStmt = $conn->prepare($notifSql);
+  $notifStmt->bind_param("iisi", $receiverId, $senderId, $notifContent, $newFriendshipId);
+  $notifStmt->execute();
+  $notifStmt->close();
+
   echo json_encode([
     "message" => "Đã gửi lời mời kết bạn!",
   ]);
 
-  $stmt->close();
   $conn->close();
 
   exit();
@@ -211,11 +221,32 @@ if ($method === "PUT") {
       exit();
     }
 
+    $stmt->close();
+
+    // Tìm thông tin người gửi lời mời ban đầu để bắn thông báo
+    $findSql = "SELECT user_id, friend_id FROM friendships WHERE id = ? LIMIT 1";
+    $findStmt = $conn->prepare($findSql);
+    $findStmt->bind_param("i", $friendshipId);
+    $findStmt->execute();
+    $fRow = $findStmt->get_result()->fetch_assoc();
+    $findStmt->close();
+
+    if ($fRow) {
+      $origSender = intval($fRow["user_id"]);
+      $acceptor = intval($fRow["friend_id"]);
+
+      $notifContent = "đã chấp nhận lời mời kết bạn của bạn.";
+      $notifSql = "INSERT INTO notifications (user_id, type, from_user_id, content, related_id) VALUES (?, 'friend_accept', ?, ?, ?)";
+      $notifStmt = $conn->prepare($notifSql);
+      $notifStmt->bind_param("iisi", $origSender, $acceptor, $notifContent, $friendshipId);
+      $notifStmt->execute();
+      $notifStmt->close();
+    }
+
     echo json_encode([
       "message" => "Đã chấp nhận lời mời!",
     ]);
 
-    $stmt->close();
     $conn->close();
 
     exit();

@@ -200,7 +200,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $result = $stmt->get_result();
 
     $comment = $result->fetch_assoc();
+    $stmt->close();
 
+    /*
+    |--------------------------------------------------------------------------
+    | TẠO THÔNG BÁO COMMENT CHO CHỦ BÀI VIẾT
+    |--------------------------------------------------------------------------
+    */
+    $postSql = "SELECT user_id FROM posts WHERE id = ? LIMIT 1";
+    $postStmt = $conn->prepare($postSql);
+    $postStmt->bind_param("i", $postId);
+    $postStmt->execute();
+    $postRes = $postStmt->get_result();
+
+    if ($postRow = $postRes->fetch_assoc()) {
+        $postOwnerId = intval($postRow["user_id"]);
+
+        // Chỉ tạo thông báo nếu người comment khác chủ bài viết
+        if ($postOwnerId && $postOwnerId !== $userId) {
+            $notifContent = "đã bình luận về bài viết của bạn.";
+            $insSql = "INSERT INTO notifications (user_id, type, from_user_id, content, related_id) VALUES (?, 'comment', ?, ?, ?)";
+            $insStmt = $conn->prepare($insSql);
+            $insStmt->bind_param("iisi", $postOwnerId, $userId, $notifContent, $postId);
+            $insStmt->execute();
+            $insStmt->close();
+        }
+    }
+    $postStmt->close();
 
     http_response_code(201);
 
@@ -209,7 +235,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "comment" => $comment
     ]);
 
-    $stmt->close();
     $conn->close();
 
     exit;

@@ -7,7 +7,13 @@ export const getMediaUrl = (path) => {
   return `${API}/${cleanPath}`;
 };
 
-const ICONS = { friend_request: "👥", friend_accept: "🤝", message: "💬" };
+const ICONS = {
+  friend_request: "👥",
+  friend_accept: "🤝",
+  message: "💬",
+  like: "❤️",
+  comment: "💬",
+};
 export const getNotificationIcon = (type) => ICONS[type] || "🔔";
 
 // Dung lượng tối đa của tệp đính kèm khi đăng bài (MB) - InfinityFree chỉ cho phép tối đa 10MB/file

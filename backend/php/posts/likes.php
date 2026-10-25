@@ -165,11 +165,53 @@ if (!$stmt->execute()) {
     exit;
 }
 
+$stmt->close();
+
+/*
+|--------------------------------------------------------------------------
+| TẠO THÔNG BÁO CHO CHỦ BÀI VIẾT
+|--------------------------------------------------------------------------
+*/
+
+$postSql = "SELECT user_id FROM posts WHERE id = ? LIMIT 1";
+$postStmt = $conn->prepare($postSql);
+$postStmt->bind_param("i", $postId);
+$postStmt->execute();
+$postResult = $postStmt->get_result();
+
+if ($postRow = $postResult->fetch_assoc()) {
+    $postOwnerId = intval($postRow["user_id"]);
+
+    if ($postOwnerId && $postOwnerId !== $userId) {
+        $checkNotifSql = "SELECT id FROM notifications WHERE user_id = ? AND type = 'like' AND from_user_id = ? AND related_id = ? LIMIT 1";
+        $checkNotifStmt = $conn->prepare($checkNotifSql);
+        $checkNotifStmt->bind_param("iiii", $postOwnerId, $userId, $postId);
+        $checkNotifStmt->execute();
+        $notifResult = $checkNotifStmt->get_result();
+
+        if ($notifRow = $notifResult->fetch_assoc()) {
+            $upSql = "UPDATE notifications SET is_read = 0, created_at = CURRENT_TIMESTAMP WHERE id = ?";
+            $upStmt = $conn->prepare($upSql);
+            $upStmt->bind_param("i", $notifRow["id"]);
+            $upStmt->execute();
+            $upStmt->close();
+        } else {
+            $notifContent = "đã thích bài viết của bạn.";
+            $insSql = "INSERT INTO notifications (user_id, type, from_user_id, content, related_id) VALUES (?, 'like', ?, ?, ?)";
+            $insStmt = $conn->prepare($insSql);
+            $insStmt->bind_param("iisi", $postOwnerId, $userId, $notifContent, $postId);
+            $insStmt->execute();
+            $insStmt->close();
+        }
+        $checkNotifStmt->close();
+    }
+}
+$postStmt->close();
+
 echo json_encode([
     "liked" => true
 ]);
 
-$stmt->close();
 $conn->close();
 
 ?>

@@ -1,20 +1,16 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 import Account from "./pages/Account";
 import Friends from "./pages/Friends";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import Admin from "./pages/Admin";
-import { isAdmin, homePath } from "./utils";
-
-// Chỉ cho admin vào (kiểm tra mỗi lần vào trang, không chỉ lúc tải web)
-function AdminRoute({ children }) {
-  return isAdmin() ? children : <Navigate to="/" replace />;
-}
+import { homePath } from "./utils";
 
 function App() {
   const user = localStorage.getItem("user");

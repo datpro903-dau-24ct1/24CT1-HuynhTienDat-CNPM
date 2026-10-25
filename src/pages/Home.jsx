@@ -742,6 +742,31 @@ function Home() {
       return;
     }
 
+    if (notification.type === "like" || notification.type === "comment") {
+      setShowNotificationDropdown(false);
+
+      if (notification.related_id) {
+        const targetElement = document.getElementById(`post-${notification.related_id}`);
+
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+
+          targetElement.classList.add("shared-post-highlight");
+
+          setTimeout(() => {
+            targetElement.classList.remove("shared-post-highlight");
+          }, 2500);
+        } else {
+          navigate(`/home?post=${notification.related_id}`);
+        }
+      }
+
+      return;
+    }
+
     navigate("/notifications");
   };
 

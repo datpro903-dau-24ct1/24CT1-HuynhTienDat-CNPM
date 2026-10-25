@@ -174,6 +174,18 @@ function Notifications() {
       return;
     }
 
+    // THÍCH HOẶC BÌNH LUẬN BÀI VIẾT
+
+    if (notification.type === "like" || notification.type === "comment") {
+      if (notification.related_id) {
+        navigate(`/home?post=${notification.related_id}`);
+      } else {
+        navigate("/home");
+      }
+
+      return;
+    }
+
     navigate("/home");
   };
 
