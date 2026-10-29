@@ -39,6 +39,11 @@ if (
 |--------------------------------------------------------------------------
 */
 
+$colCheck = $conn->query("SHOW COLUMNS FROM users LIKE 'is_banned'");
+if ($colCheck && $colCheck->num_rows === 0) {
+    @$conn->query("ALTER TABLE users ADD is_banned TINYINT(1) NOT NULL DEFAULT 0");
+}
+
 $sql = "
     SELECT
         id,
@@ -50,6 +55,7 @@ $sql = "
         date_of_birth,
         avatar,
         role,
+        is_banned,
         created_at
     FROM users
     WHERE email = ?
@@ -100,6 +106,16 @@ if (!password_verify($password, $user["password"])) {
     $stmt->close();
     $conn->close();
 
+    exit;
+}
+
+if (!empty($user["is_banned"])) {
+    http_response_code(403);
+    echo json_encode([
+        "message" => "Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn cộng đồng! Vui lòng liên hệ quản trị viên."
+    ]);
+    $stmt->close();
+    $conn->close();
     exit;
 }
 

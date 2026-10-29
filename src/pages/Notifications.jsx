@@ -138,7 +138,7 @@ function Notifications() {
       );
 
       fetch(`${API}/notifications/read.php?id=${notification.id}`, {
-        method: "PUT",
+        method: "POST",
       }).catch((error) => {
         console.log("Lỗi đánh dấu thông báo:", error);
       });
@@ -267,7 +267,7 @@ function Notifications() {
 
     try {
       const response = await fetch(`${API}/notifications/read-all.php?user_id=${user.id}`, {
-        method: "PUT",
+        method: "POST",
       });
 
       const data = await response.json();

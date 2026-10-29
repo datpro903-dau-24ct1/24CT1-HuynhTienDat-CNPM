@@ -111,8 +111,3 @@ npm run build
 - Cập nhật địa chỉ `API` trong `src/utils.js` trỏ về server backend tương ứng.
 
 ---
-
-## 👨‍💻 Tác giả
-- **Sinh viên thực hiện:** Huỳnh Tiến Đạt
-- **Lớp:** 24CT1
-- **Khoa:** Công nghệ Thông tin

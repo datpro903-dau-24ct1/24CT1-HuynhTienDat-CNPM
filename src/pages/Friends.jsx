@@ -406,19 +406,24 @@ function Friends() {
             <div className="friends-grid">
               {friends.map((friend) => (
                 <div className="friend-card" key={friend.id}>
-                  <div className="friend-avatar large">
-                    {friend.avatar ? (
-                      <img src={getMediaUrl(friend.avatar)} alt="" />
-                    ) : (
-                      friend.name?.charAt(0).toUpperCase()
-                    )}
-                  </div>
+                  <Link
+                    to={`/account?id=${friend.id}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}
+                  >
+                    <div className="friend-avatar large">
+                      {friend.avatar ? (
+                        <img src={getMediaUrl(friend.avatar)} alt="" />
+                      ) : (
+                        friend.name?.charAt(0).toUpperCase()
+                      )}
+                    </div>
 
-                  <strong>{friend.name}</strong>
+                    <strong>{friend.name}</strong>
 
-                  <span>{friend.class}</span>
+                    <span>{friend.class}</span>
 
-                  <small>MSSV: {friend.student_code}</small>
+                    <small>MSSV: {friend.student_code}</small>
+                  </Link>
 
                   <button
                     className="unfriend-btn"
@@ -466,25 +471,28 @@ function Friends() {
             ) : (
               filteredUsers.map((item) => (
                 <div className="user-card" key={item.id}>
-                  {/* AVATAR */}
+                  {/* AVATAR + INFO */}
 
-                  <div className="friend-avatar">
-                    {item.avatar ? (
-                      <img src={getMediaUrl(item.avatar)} alt="" />
-                    ) : (
-                      item.name?.charAt(0).toUpperCase()
-                    )}
-                  </div>
+                  <Link
+                    to={`/account?id=${item.id}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "12px", flex: 1, minWidth: 0 }}
+                  >
+                    <div className="friend-avatar">
+                      {item.avatar ? (
+                        <img src={getMediaUrl(item.avatar)} alt="" />
+                      ) : (
+                        item.name?.charAt(0).toUpperCase()
+                      )}
+                    </div>
 
-                  {/* INFO */}
+                    <div className="friend-info">
+                      <strong>{item.name}</strong>
 
-                  <div className="friend-info">
-                    <strong>{item.name}</strong>
+                      <span>{item.class}</span>
 
-                    <span>{item.class}</span>
-
-                    <small>MSSV: {item.student_code}</small>
-                  </div>
+                      <small>MSSV: {item.student_code}</small>
+                    </div>
+                  </Link>
 
                   {/* ACTION */}
 

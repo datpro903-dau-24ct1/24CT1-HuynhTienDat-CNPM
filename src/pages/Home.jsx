@@ -21,6 +21,7 @@ function Home() {
 
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [searchPostQuery, setSearchPostQuery] = useState("");
 
   // FILE ĐĂNG BÀI
 
@@ -695,7 +696,7 @@ function Home() {
 
       try {
         const response = await fetch(`${API}/notifications/read.php?id=${notification.id}`, {
-          method: "PUT",
+          method: "POST",
         });
 
         const data = await response.json().catch(() => ({}));
@@ -773,7 +774,7 @@ function Home() {
   // ĐÁNH DẤU TẤT CẢ
 
   const markAllNotificationsAsRead = async () => {
-    if (!user?.id || unreadCount === 0) {
+    if (!user?.id) {
       return;
     }
 
@@ -790,7 +791,7 @@ function Home() {
 
     try {
       const response = await fetch(`${API}/notifications/read-all.php?user_id=${user.id}`, {
-        method: "PUT",
+        method: "POST",
       });
 
       const data = await response.json();
@@ -1173,6 +1174,16 @@ function Home() {
     }
   };
 
+  // LỌC BÀI VIẾT THEO TỪ KHÓA TÌM KIẾM
+
+  const filteredPosts = posts.filter((post) => {
+    if (!searchPostQuery.trim()) return true;
+    const q = searchPostQuery.toLowerCase().trim();
+    const content = (post.content || "").toLowerCase();
+    const author = (post.name || "").toLowerCase();
+    return content.includes(q) || author.includes(q);
+  });
+
   // RENDER
 
   return (
@@ -1183,6 +1194,35 @@ function Home() {
         <Link to="/home" className="logo">
           🎓 IT CONNECT
         </Link>
+
+        {/* THANH TÌM KIẾM BÀI VIẾT */}
+        <div className="search">
+          <span>🔍</span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm bài viết, người đăng..."
+            value={searchPostQuery}
+            onChange={(e) => setSearchPostQuery(e.target.value)}
+          />
+          {searchPostQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchPostQuery("")}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#64748b",
+                fontSize: "14px",
+                marginLeft: "auto",
+                padding: "0 4px",
+              }}
+              title="Xóa tìm kiếm"
+            >
+              ✕
+            </button>
+          )}
+        </div>
 
         <div className="header-right">
           {/* THÔNG BÁO */}
@@ -1439,12 +1479,49 @@ function Home() {
 
           {/* DANH SÁCH BÀI */}
 
+          {/* THÔNG BÁO KẾT QUẢ TÌM KIẾM */}
+
+          {searchPostQuery.trim() && (
+            <div style={{
+              marginBottom: "16px",
+              padding: "10px 16px",
+              background: "#e8f0fe",
+              border: "1px solid #c2e7ff",
+              borderRadius: "8px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: "14px",
+              color: "#1a73e8"
+            }}>
+              <span>
+                🔍 Kết quả tìm kiếm: <strong>"{searchPostQuery}"</strong> ({filteredPosts.length} bài viết)
+              </span>
+              <button
+                type="button"
+                onClick={() => setSearchPostQuery("")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#d93025",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "13px"
+                }}
+              >
+                ✕ Xóa tìm kiếm
+              </button>
+            </div>
+          )}
+
           {loadingPosts ? (
             <p className="loading-text">Đang tải bài viết...</p>
           ) : posts.length === 0 ? (
             <p className="loading-text">Chưa có bài viết nào.</p>
+          ) : filteredPosts.length === 0 ? (
+            <p className="loading-text">Không tìm thấy bài viết nào phù hợp với "{searchPostQuery}".</p>
           ) : (
-            posts.map((post) => (
+            filteredPosts.map((post) => (
               <section className="post" id={`post-${post.id}`} key={post.id}>
                 {/* NÚT SỬA / XÓA (CHỈ CHỦ BÀI VIẾT) */}
 
@@ -1460,7 +1537,7 @@ function Home() {
                 {/* HEADER */}
 
                 <div className="post-header">
-                  <div className="avatar">
+                  <Link to={`/account?id=${post.user_id}`} className="avatar" style={{ textDecoration: "none" }}>
                     {post.avatar ? (
                       <img src={getMediaUrl(post.avatar)} alt="Avatar" className="avatar-image" />
                     ) : post.name ? (
@@ -1468,10 +1545,12 @@ function Home() {
                     ) : (
                       "?"
                     )}
-                  </div>
+                  </Link>
 
                   <div>
-                    <h3>{post.name}</h3>
+                    <Link to={`/account?id=${post.user_id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                      <h3 style={{ margin: 0, cursor: "pointer" }}>{post.name}</h3>
+                    </Link>
 
                     <span>
                       {post.created_at ? new Date(post.created_at).toLocaleString("vi-VN") : "Vừa đăng"}

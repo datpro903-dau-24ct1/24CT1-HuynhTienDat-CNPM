@@ -6,7 +6,9 @@ import { Link } from "react-router-dom";
 import "./Account.css";
 
 function Account() {
+  const [currentUser, setCurrentUser] = useState(null);
   const [user, setUser] = useState(null);
+  const isOwner = !currentUser || !user || Number(currentUser.id) === Number(user.id);
   const [myPosts, setMyPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,24 +54,43 @@ function Account() {
 
     if (!savedUser) {
       window.location.href = "/";
-
       return;
     }
 
     try {
-      const currentUser = JSON.parse(savedUser);
+      const loggedUser = JSON.parse(savedUser);
+      setCurrentUser(loggedUser);
 
-      setUser(currentUser);
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get("id");
 
-      fetchMyPosts(currentUser.id);
+      if (targetId && Number(targetId) !== Number(loggedUser.id)) {
+        setLoading(true);
+        fetch(`${API}/account/profile.php?user_id=${targetId}`)
+          .then((res) => res.json())
+          .then((profileData) => {
+            if (profileData && profileData.id) {
+              setUser(profileData);
+              fetchMyPosts(profileData.id);
+            } else {
+              setUser(loggedUser);
+              fetchMyPosts(loggedUser.id);
+            }
+          })
+          .catch(() => {
+            setUser(loggedUser);
+            fetchMyPosts(loggedUser.id);
+          });
+      } else {
+        setUser(loggedUser);
+        fetchMyPosts(loggedUser.id);
+      }
     } catch (error) {
       console.log("Lỗi đọc user:", error);
-
       localStorage.removeItem("user");
-
       window.location.href = "/";
     }
-  }, []);
+  }, [window.location.search]);
 
   // LẤY BÀI VIẾT CỦA USER
 
@@ -490,7 +511,12 @@ function Account() {
           <div className="profile-content">
             {/* AVATAR */}
 
-            <div className="profile-avatar-upload" onClick={handleAvatarClick} title="Đổi ảnh đại diện">
+            <div
+              className={`profile-avatar-upload ${!isOwner ? "profile-avatar-readonly" : ""}`}
+              onClick={isOwner ? handleAvatarClick : undefined}
+              title={isOwner ? "Đổi ảnh đại diện" : user?.name}
+              style={{ cursor: isOwner ? "pointer" : "default" }}
+            >
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Avatar" className="profile-avatar-image" />
               ) : (
@@ -499,7 +525,7 @@ function Account() {
 
               {/* CAMERA */}
 
-              <div className="avatar-camera">{uploadingAvatar ? "..." : "📷"}</div>
+              {isOwner && <div className="avatar-camera">{uploadingAvatar ? "..." : "📷"}</div>}
 
               {/* FILE INPUT */}
 
@@ -582,19 +608,21 @@ function Account() {
 
             {/* ACTION */}
 
-            <div className="profile-actions">
-              <button type="button" onClick={handleOpenEdit}>
-                ✏️ Chỉnh sửa thông tin
-              </button>
+            {isOwner && (
+              <div className="profile-actions">
+                <button type="button" onClick={handleOpenEdit}>
+                  ✏️ Chỉnh sửa thông tin
+                </button>
 
-              <button type="button" className="change-password-btn" onClick={handleOpenPasswordModal}>
-                🔑 Đổi mật khẩu
-              </button>
+                <button type="button" className="change-password-btn" onClick={handleOpenPasswordModal}>
+                  🔑 Đổi mật khẩu
+                </button>
 
-              <button type="button" className="logout-btn" onClick={handleLogout}>
-                🚪 Đăng xuất
-              </button>
-            </div>
+                <button type="button" className="logout-btn" onClick={handleLogout}>
+                  🚪 Đăng xuất
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -603,9 +631,9 @@ function Account() {
         <section className="my-posts">
           <div className="section-title">
             <div>
-              <h2>📝 Bài viết của tôi</h2>
+              <h2>📝 {isOwner ? "Bài viết của tôi" : `Bài viết của ${user?.name}`}</h2>
 
-              <p>Những bài viết bạn đã chia sẻ</p>
+              <p>{isOwner ? "Những bài viết bạn đã chia sẻ" : `Những bài viết được chia sẻ bởi ${user?.name}`}</p>
             </div>
 
             <span className="post-count">{myPosts.length} bài viết</span>
@@ -617,11 +645,14 @@ function Account() {
             <div className="empty-post">
               <div className="empty-icon">📝</div>
 
-              <h3>Bạn chưa có bài viết</h3>
+              <h3>{isOwner ? "Bạn chưa có bài viết" : `${user?.name} chưa có bài viết nào.`}</h3>
 
-              <p>Hãy chia sẻ điều gì đó với cộng đồng IT CONNECT.</p>
-
-              <Link to="/home">Đăng bài ngay</Link>
+              {isOwner && (
+                <>
+                  <p>Hãy chia sẻ điều gì đó với cộng đồng IT CONNECT.</p>
+                  <Link to="/home">Đăng bài ngay</Link>
+                </>
+              )}
             </div>
           ) : (
             <div className="account-post-list">
