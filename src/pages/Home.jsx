@@ -22,6 +22,16 @@ function Home() {
   const [posts, setPosts] = useState([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [searchPostQuery, setSearchPostQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const POSTS_PER_PAGE = 6;
+  const loadingMoreRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const pageRef = useRef(1);
+  loadingMoreRef.current = loadingMore;
+  hasMoreRef.current = hasMore;
+  pageRef.current = page;
 
   // FILE ĐĂNG BÀI
 
@@ -80,11 +90,16 @@ function Home() {
   const [editContent, setEditContent] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // LẤY BÀI VIẾT
+  // LẤY BÀI VIẾT (HỖ TRỢ PHÂN TRANG / INFINITE SCROLL)
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (pageNum = 1, isLoadMore = false) => {
+    if (isLoadMore) {
+      setLoadingMore(true);
+    }
+
     try {
-      const url = user?.id ? `${API}/posts/posts.php?user_id=${user.id}` : `${API}/posts/posts.php`;
+      const userParam = user?.id ? `user_id=${user.id}&` : "";
+      const url = `${API}/posts/posts.php?${userParam}page=${pageNum}&limit=${POSTS_PER_PAGE}`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -94,12 +109,43 @@ function Home() {
         return;
       }
 
-      setPosts(Array.isArray(data) ? data : []);
+      let newPosts = [];
+      let canLoadMore = false;
+
+      if (data && Array.isArray(data.posts)) {
+        newPosts = data.posts;
+        canLoadMore = Boolean(data.pagination?.has_next);
+      } else if (Array.isArray(data)) {
+        newPosts = data;
+        canLoadMore = newPosts.length === POSTS_PER_PAGE;
+      }
+
+      setHasMore(canLoadMore);
+      hasMoreRef.current = canLoadMore;
+      setPage(pageNum);
+      pageRef.current = pageNum;
+
+      if (isLoadMore) {
+        setPosts((prev) => {
+          const existingIds = new Set(prev.map((p) => p.id));
+          const uniqueNewPosts = newPosts.filter((p) => !existingIds.has(p.id));
+          return [...prev, ...uniqueNewPosts];
+        });
+      } else {
+        setPosts(newPosts);
+      }
     } catch (error) {
       console.log("Lỗi lấy bài viết:", error);
     } finally {
       setLoadingPosts(false);
+      setLoadingMore(false);
     }
+  };
+
+  const loadMorePosts = () => {
+    if (loadingMoreRef.current || !hasMoreRef.current) return;
+    const nextPage = pageRef.current + 1;
+    fetchPosts(nextPage, true);
   };
 
   // LẤY DANH SÁCH BẠN BÈ
@@ -845,12 +891,39 @@ function Home() {
     fetchFriends();
     fetchNotifications();
 
-    const notificationInterval = setInterval(() => {
+    // Heartbeat định kỳ để duy trì trạng thái online
+    if (user?.id) {
+      postJson(`${API}/account/heartbeat.php`, { user_id: user.id, action: "ping" }).catch(() => {});
+    }
+
+    const interval = setInterval(() => {
       fetchNotifications();
-    }, 5000);
+      fetchFriends();
+      if (user?.id) {
+        postJson(`${API}/account/heartbeat.php`, { user_id: user.id, action: "ping" }).catch(() => {});
+      }
+    }, 10000);
+
+    // Tự động cuộn đến cuối để tải thêm bài viết (Infinite Scroll)
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      // Khi lướt cách chân trang dưới 250px thì tự động tải thêm trang kế tiếp
+      if (scrollTop + clientHeight >= scrollHeight - 250) {
+        if (!loadingMoreRef.current && hasMoreRef.current) {
+          const nextPage = pageRef.current + 1;
+          fetchPosts(nextPage, true);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      clearInterval(notificationInterval);
+      clearInterval(interval);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -901,7 +974,7 @@ function Home() {
 
       handleRemoveFile();
 
-      fetchPosts();
+      fetchPosts(1, false);
     } catch (error) {
       console.log("Lỗi đăng bài:", error);
 
@@ -1354,9 +1427,13 @@ function Home() {
           <div className="sidebar-bottom">
             <button
               className="menu logout"
-              onClick={() => {
+              onClick={async () => {
+                if (user?.id) {
+                  try {
+                    await postJson(`${API}/account/heartbeat.php`, { user_id: user.id, action: "offline" });
+                  } catch (_) {}
+                }
                 localStorage.removeItem("user");
-
                 window.location.href = "/";
               }}
             >
@@ -1734,13 +1811,27 @@ function Home() {
               </section>
             ))
           )}
+
+          {/* TRẠNG THÁI CUỘN TẢI THÊM (INFINITE SCROLL) */}
+          {!loadingPosts && filteredPosts.length > 0 && !searchPostQuery.trim() && (
+            <div style={{ textAlign: "center", padding: "20px 0", color: "#64748b", fontSize: "14px" }}>
+              {loadingMore ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ display: "inline-block", width: "16px", height: "16px", border: "2px solid #1877f2", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }}></span>
+                  Đang tải thêm bài viết...
+                </div>
+              ) : !hasMore ? (
+                <span>🎉 Bạn đã xem hết tất cả bài viết!</span>
+              ) : null}
+            </div>
+          )}
         </main>
 
         {/* SIDEBAR PHẢI */}
 
         <aside className="right-sidebar">
           <div className="right-box">
-            <h3>👥 Bạn bè online</h3>
+            <h3>👥 Bạn bè ({friends.filter((f) => f.is_online).length} online)</h3>
 
             {loadingFriends ? (
               <p className="friend-loading">Đang tải bạn bè...</p>
@@ -1768,7 +1859,11 @@ function Home() {
                   <div className="friend-info">
                     <strong className="friend-name">{friend.name}</strong>
 
-                    <span className="online">● Online</span>
+                    {friend.is_online ? (
+                      <span className="online">● Online</span>
+                    ) : (
+                      <span className="offline">○ Offline</span>
+                    )}
                   </div>
                 </div>
               ))

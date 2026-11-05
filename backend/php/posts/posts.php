@@ -12,10 +12,22 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 require_once "../config/database.php";
 
-// GET - LẤY DANH SÁCH BÀI VIẾT
+// GET - LẤY DANH SÁCH BÀI VIẾT (HỖ TRỢ PHÂN TRANG PAGE & LIMIT)
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
   $userId = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
+  $isPaginated = isset($_GET["page"]);
+  $page = max(1, intval($_GET["page"] ?? 1));
+  $limit = max(1, min(50, intval($_GET["limit"] ?? 6)));
+  $offset = ($page - 1) * $limit;
+
+  // Đếm tổng số bài viết
+  $totalPosts = 0;
+  $countQuery = $conn->query("SELECT COUNT(*) AS total FROM posts");
+  if ($countQuery) {
+    $totalPosts = intval($countQuery->fetch_assoc()["total"]);
+  }
+  $totalPages = $limit > 0 ? max(1, ceil($totalPosts / $limit)) : 1;
 
   $sql = "
         SELECT
@@ -55,41 +67,56 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             ON p.user_id = u.id
 
         ORDER BY p.created_at DESC
-    ";
+  ";
 
-  $stmt = $conn->prepare($sql);
-
-  if (!$stmt) {
-    http_response_code(500);
-
-    echo json_encode([
-      "message" => "Không thể lấy bài viết!",
-    ]);
-
-    exit();
+  if ($isPaginated) {
+    $sql .= " LIMIT ? OFFSET ?";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+      http_response_code(500);
+      echo json_encode(["message" => "Không thể lấy bài viết!"]);
+      exit();
+    }
+    $stmt->bind_param("iii", $userId, $limit, $offset);
+  } else {
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+      http_response_code(500);
+      echo json_encode(["message" => "Không thể lấy bài viết!"]);
+      exit();
+    }
+    $stmt->bind_param("i", $userId);
   }
 
-  $stmt->bind_param("i", $userId);
-
   $stmt->execute();
-
   $result = $stmt->get_result();
-
   $posts = [];
 
   while ($row = $result->fetch_assoc()) {
     $row["like_count"] = intval($row["like_count"]);
     $row["comment_count"] = intval($row["comment_count"]);
     $row["liked"] = intval($row["liked"]);
-
     $posts[] = $row;
   }
 
-  echo json_encode($posts);
+  if ($isPaginated) {
+    echo json_encode([
+      "posts" => $posts,
+      "pagination" => [
+        "page" => $page,
+        "limit" => $limit,
+        "total_posts" => $totalPosts,
+        "total_pages" => $totalPages,
+        "has_prev" => $page > 1,
+        "has_next" => $page < $totalPages
+      ]
+    ]);
+  } else {
+    echo json_encode($posts);
+  }
 
   $stmt->close();
   $conn->close();
-
   exit();
 }
 

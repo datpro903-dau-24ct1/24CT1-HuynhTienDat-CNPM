@@ -127,6 +127,18 @@ if (!empty($user["is_banned"])) {
 
 unset($user["password"]);
 
+// Cập nhật thời điểm đăng nhập / hoạt động (last_active)
+$colCheck = $conn->query("SHOW COLUMNS FROM users LIKE 'last_active'");
+if ($colCheck && $colCheck->num_rows === 0) {
+    @$conn->query("ALTER TABLE users ADD last_active DATETIME NULL DEFAULT NULL");
+}
+$updActive = $conn->prepare("UPDATE users SET last_active = NOW() WHERE id = ?");
+if ($updActive) {
+    $updActive->bind_param("i", $user["id"]);
+    $updActive->execute();
+    $updActive->close();
+}
+
 /*
 |--------------------------------------------------------------------------
 | Trả thông tin user

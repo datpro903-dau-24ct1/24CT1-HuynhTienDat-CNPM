@@ -22,6 +22,21 @@ if (!$userId) {
   exit();
 }
 
+// Tự động kiểm tra/tạo cột last_active nếu DB chưa có
+$colCheck = $conn->query("SHOW COLUMNS FROM users LIKE 'last_active'");
+if ($colCheck && $colCheck->num_rows === 0) {
+  @$conn->query("ALTER TABLE users ADD last_active DATETIME NULL DEFAULT NULL");
+}
+
+// Cập nhật last_active của chính người đang gọi API để giữ kết nối
+$updSelf = $conn->prepare("UPDATE users SET last_active = NOW() WHERE id = ?");
+if ($updSelf) {
+  $updSelf->bind_param("i", $userId);
+  $updSelf->execute();
+  $updSelf->close();
+}
+
+// Xác định online: last_active không NULL và trong vòng 2 phút (120 giây)
 $sql = "
     SELECT
         u.id,
@@ -29,7 +44,13 @@ $sql = "
         u.email,
         u.student_code,
         u.class,
-        u.avatar
+        u.avatar,
+        u.last_active,
+        CASE
+            WHEN u.last_active IS NOT NULL AND TIMESTAMPDIFF(SECOND, u.last_active, NOW()) <= 120
+            THEN 1
+            ELSE 0
+        END AS is_online
 
     FROM friendships f
 
@@ -48,7 +69,7 @@ $sql = "
         )
         AND f.status = 'accepted'
 
-    ORDER BY u.name ASC
+    ORDER BY is_online DESC, u.name ASC
 ";
 
 $stmt = $conn->prepare($sql);
@@ -70,6 +91,7 @@ $result = $stmt->get_result();
 $friends = [];
 
 while ($row = $result->fetch_assoc()) {
+  $row["is_online"] = intval($row["is_online"]) === 1;
   $friends[] = $row;
 }
 
@@ -77,5 +99,3 @@ echo json_encode($friends);
 
 $stmt->close();
 $conn->close();
-
-?>
